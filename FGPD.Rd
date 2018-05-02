@@ -22,10 +22,11 @@ FGPD(z,zexc,estim)
 %%     ~~Describe \code{x} here~~
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
-\value{ Returns the value of the cumulative distribution function evaluated in z using the method of estimation chosen.
+
+\value{ Returns a list composed of:
+\item{val}{The value of the cumulative distribution function evaluated in z using the method of estimation chosen - real number}
+  \item{k }{The estimated parameter k of Pareto's cumulative distribution function - real number}
+  \item{a }{The estimated parameter a of Pareto's cumulative distribution function - real number}
 %%  ~Describe the value returned
 %%  If it is a LIST, use
 %%  \item{comp1 }{Description of 'comp1'}
@@ -39,15 +40,7 @@ and Ilya Shmulevich, Fewer permutations, more accurate P-values, Bioinformatics.
 \author{ Marion
 %%  ~~who you are~~
 }
-\note{
-%%  ~~further notes~~
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
 FGPD(30,sort(rnorm(1e6)),"PWM")
 
@@ -61,9 +54,13 @@ function (z, zexc, estim)
   a<-coeff$a
   k<-coeff$k
   if (k!= 0)
-    return(1-(1-k*z/a)^(1/k))
+    return(list(val = 1-(1-k*z/a)^(1/k),
+                k = k,
+                a = a))
   else
-    return(1-exp(-z/a))
+    return(list(val = 1-exp(-z/a),
+                k = k,
+                a = a))
   }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

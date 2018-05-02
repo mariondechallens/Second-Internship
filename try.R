@@ -14,21 +14,6 @@ sd(data$taille)
 hist(rnorm(nrow(data),mean=46,sd=4))
 pnorm(55,mean=46,sd=4,lower.tail=F)
 
-# p_estimate(Z=data$taille,
-#            Zobs=55,
-#            Nsim=1,
-#            method="GPD",
-#            estim="PWM")
-# p_estimate(Z=data$taille,
-#            Zobs=55,
-#            Nsim=1,
-#            method="GPD",
-#            estim="EMV")
-# p_estimate(Z=data$taille,
-#            Zobs=55,
-#            Nsim=1,
-#            method="BC")
-
 calcul_p(zsim=data$taille,
          Zobs=55,
          method="GPD",

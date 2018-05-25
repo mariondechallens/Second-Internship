@@ -39,22 +39,3 @@ for (i in 1:length(FST.1)){
   
 }
 
-##Testing Monte Carlo Algorithm
-library(EXPERT)
-
-data.input<-FST.1[[2]][1:500]
-t.obs<-FST.1[[2]][501]
-
-one_sample_t_test<-function (data.input) 
-{
-    t.test(data.input)$statistic[[1]]
-}
-
-permute_vector_one<-function (data.input, prop.change) #no update for one sample data
-{
-data.input
-}
-SAMC.adapt(data.input,
-           t.obs,
-           fun.test.statistic = one_sample_t_test, 
-           fun.proposal=permute_vector_one)

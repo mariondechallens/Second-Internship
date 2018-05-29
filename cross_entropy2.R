@@ -1,26 +1,30 @@
 library(EXPERT)
+library(gaston)
+library(oz)
 
 load("C:/Users/Marion/Documents/Stage/packageBC/FST_1.RData")
-data<-FST.1[[1]][1:500]
-zobs<- FST.1[[1]][501]
+x<-read.bed.matrix("C:/Users/Marion/Documents/Stage/1KG_eur_maf1pm_genes")
+data<-list(x=x, group = x@ped$population, genomic.region = x@snps$gene)
 
-z<-list(tail(sort(rnorm(1e6)),500))
-zobs<-5.1
-pnorm(zobs,lower.tail=F)
-qnorm(pnorm(zobs,lower.tail=F),lower.tail=F)
 
-ttest<-function (data.input) 
+teststat<-function (data.input) #liste des para de Sum.Fst (x, group, region)
 {
-  abs(t.test(data.input)$statistic[[1]])
+  FST<-Sum.Fst(data.input$x, group = data.input$group, genomic.region = data.input$genomic.region,B.max=0)
+  return(FST$statistic)
 }
 
 permut<- function (data.input, prop.change) 
 {
-  xchange<-sample(1:length(data.input),prop.change*length(data.input))
-  c(data.input[-xchange],data.input[xchange])
+  n<-length(data.input$group)
+  m<-floor(n*prop.change)
+  I<-sample(1:n,m)
+  data.input$group[I]<-sample(data.input$group[I])
+  
 }
 
-SAMC.adapt(data.input=tail(sort(rnorm(1e6)),500),
-           t.obs=5.1,
-           fun.test.statistic=ttest, 
+
+res<-SAMC.adapt(data.input=data,
+           t.obs=teststat(data),
+           fun.test.statistic=teststat, 
            fun.proposal=permut)
+

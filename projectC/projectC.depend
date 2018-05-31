@@ -1,17 +1,19 @@
 # depslib dependency file v1.0
-1527765118 source:c:\users\marion\documents\stage\projectc\main.cpp
+1527777186 source:c:\users\marion\documents\stage\projectc\main.cpp
 	<iostream>
 	<cmath>
-	"math.h"
+	<vector>
+	<fstream>
 
 1527687440 source:c:\users\marion\documents\stage\projectc\main2.c
 
 1527752176 source:c:\users\marion\documents\stage\projectc\main2.cpp
 
-1527765227 source:c:\users\marion\documents\stage\projectc\math.cpp
+1527774009 source:c:\users\marion\documents\stage\projectc\math.cpp
 	"math.h"
 	<iostream>
 	<cmath>
 
-1527765265 c:\users\marion\documents\stage\projectc\math.h
+1527774010 c:\users\marion\documents\stage\projectc\math.h
+	<vector>
 

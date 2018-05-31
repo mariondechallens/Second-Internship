@@ -1,11 +1,13 @@
 #ifndef MATH_H_INCLUDED
 #define MATH_H_INCLUDED
+#include<vector>
 /*
 * fonction qui ajoute 5
 * a un nombre entier
 */
-int func( int nb = 5); // valeur par defaut 5
-int bfor ();
 void ech(double& a, double& b);
-
+// prototype avec valeurs par defaut
+int nombreDeSecondes(int heures, int minutes  = 0 , int secondes = 0);
+void tab( double tableau[], int taille);
+void nom();
 #endif // MATH_H_INCLUDED

@@ -1,9 +1,10 @@
 # depslib dependency file v1.0
-1527777186 source:c:\users\marion\documents\stage\projectc\main.cpp
+1527856027 source:c:\users\marion\documents\stage\projectc\main.cpp
 	<iostream>
 	<cmath>
 	<vector>
 	<fstream>
+	"math.h"
 
 1527687440 source:c:\users\marion\documents\stage\projectc\main2.c
 
@@ -14,6 +15,7 @@
 	<iostream>
 	<cmath>
 
-1527774010 c:\users\marion\documents\stage\projectc\math.h
+1527856083 c:\users\marion\documents\stage\projectc\math.h
 	<vector>
+	<fstream>
 

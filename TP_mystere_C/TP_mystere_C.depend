@@ -1,0 +1,17 @@
+# depslib dependency file v1.0
+1527840783 source:c:\users\marion\documents\stage\tp_mystere_c\main.cpp
+	<iostream>
+	<ctime>
+	<cstdlib>
+	<cmath>
+	"mystere.h"
+
+1527841360 source:c:\users\marion\documents\stage\tp_mystere_c\mystere.cpp
+	<iostream>
+	<ctime>
+	<cstdlib>
+	<cmath>
+	"mystere.h"
+
+1527841183 c:\users\marion\documents\stage\tp_mystere_c\mystere.h
+

@@ -33,6 +33,8 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="main.cpp" />
+		<Unit filename="mystere.cpp" />
+		<Unit filename="mystere.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />

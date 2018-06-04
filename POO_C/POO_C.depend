@@ -1,0 +1,24 @@
+# depslib dependency file v1.0
+1528120961 source:c:\users\marion\documents\stage\poo_c\main.cpp
+	<iostream>
+	<string>
+	"Personnage.h"
+	"Arme.h"
+
+1528121013 source:c:\users\marion\documents\stage\poo_c\personnage.cpp
+	<string>
+	"Personnage.h"
+
+1528120758 c:\users\marion\documents\stage\poo_c\personnage.h
+	<string>
+	<iostream>
+	"Arme.h"
+
+1528118619 source:c:\users\marion\documents\stage\poo_c\arme.cpp
+	<string>
+	"Arme.h"
+
+1528117886 c:\users\marion\documents\stage\poo_c\arme.h
+	<iostream>
+	<string>
+

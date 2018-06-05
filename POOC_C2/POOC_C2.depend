@@ -1,0 +1,24 @@
+# depslib dependency file v1.0
+1528190311 source:c:\users\marion\documents\stage\pooc_c2\duree.cpp
+	"Duree.h"
+	<cmath>
+	<iostream>
+	<string>
+
+1528190311 c:\users\marion\documents\stage\pooc_c2\duree.h
+
+1528209214 source:c:\users\marion\documents\stage\pooc_c2\main.cpp
+	<iostream>
+	"ZFraction.h"
+	<cmath>
+
+1528209163 source:c:\users\marion\documents\stage\pooc_c2\zfraction.cpp
+	"ZFraction.h"
+	<cmath>
+	<string>
+	<iostream>
+
+1528208750 c:\users\marion\documents\stage\pooc_c2\zfraction.h
+	<iostream>
+	<cmath>
+

@@ -41,19 +41,9 @@ bool Personnage::estVivant() const
     return m_vie > 0;
 }
 
-Personnage::Personnage() : m_nom("John"), m_vie(100),m_mana(100)
-{
 
-}
-Personnage::Personnage(string nomPerso) : m_nom(nomPerso), m_vie(100),m_mana(100)  //constructeur
-{
-}
 
 Personnage::Personnage(string nomPerso, string nomArme, int degatsArme) : m_nom(nomPerso), m_vie(100),m_mana(100), m_arme(nomArme,degatsArme)  //constructeur
-{
-
-}
-Personnage::Personnage(string nomArme, int degatsArme) : m_nom("John"), m_vie(100),m_mana(100), m_arme(nomArme,degatsArme)  //constructeur
 {
 
 }

@@ -8,10 +8,8 @@ class Personnage
 {   // methodes
     public:
 
-    Personnage();
-    Personnage(std::string nomPerso);// constructeur
-    Personnage(std::string nomPerso, std::string nomArme, int degatsArme);
-    Personnage(std::string nomArme, int degatsArme);
+    // constructeur
+    Personnage(std::string nomPerso = "John", std::string nomArme = "Epee", int degatsArme = 10);
     ~Personnage(); //destructeur
     void recevoirDegats(int nbDegats);
     void attaquer(Personnage &cible);

@@ -34,6 +34,10 @@
 		</Compiler>
 		<Unit filename="Arme.cpp" />
 		<Unit filename="Arme.h" />
+		<Unit filename="Guerrier.cpp" />
+		<Unit filename="Guerrier.h" />
+		<Unit filename="Magicien.cpp" />
+		<Unit filename="Magicien.h" />
 		<Unit filename="Personnage.cpp" />
 		<Unit filename="Personnage.h" />
 		<Unit filename="main.cpp" />

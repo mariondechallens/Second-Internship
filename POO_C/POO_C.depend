@@ -1,24 +1,48 @@
 # depslib dependency file v1.0
-1528121072 source:c:\users\marion\documents\stage\poo_c\main.cpp
+1528287209 source:c:\users\marion\documents\stage\poo_c\main.cpp
 	<iostream>
 	<string>
 	"Personnage.h"
 	"Arme.h"
+	"Magicien.h"
+	"Guerrier.h"
 
-1528121013 source:c:\users\marion\documents\stage\poo_c\personnage.cpp
+1528286679 source:c:\users\marion\documents\stage\poo_c\personnage.cpp
 	<string>
 	"Personnage.h"
 
-1528183840 c:\users\marion\documents\stage\poo_c\personnage.h
+1528286687 c:\users\marion\documents\stage\poo_c\personnage.h
 	<string>
 	<iostream>
 	"Arme.h"
 
-1528118619 source:c:\users\marion\documents\stage\poo_c\arme.cpp
+1528272996 source:c:\users\marion\documents\stage\poo_c\arme.cpp
 	<string>
 	"Arme.h"
 
-1528117886 c:\users\marion\documents\stage\poo_c\arme.h
+1528273046 c:\users\marion\documents\stage\poo_c\arme.h
 	<iostream>
 	<string>
+
+1528287301 source:c:\users\marion\documents\stage\poo_c\guerrier.cpp
+	<string>
+	<iostream>
+	"Guerrier.h"
+	"Personnage.h"
+
+1528286807 source:c:\users\marion\documents\stage\poo_c\magicien.cpp
+	<string>
+	<iostream>
+	"Magicien.h"
+	"Personnage.h"
+
+1528286721 c:\users\marion\documents\stage\poo_c\magicien.h
+	<iostream>
+	<string>
+	"Personnage.h"
+
+1528287301 c:\users\marion\documents\stage\poo_c\guerrier.h
+	<iostream>
+	<string>
+	"Personnage.h"
 

@@ -7,8 +7,7 @@ class Arme
 {
     public:
 
-    Arme();
-    Arme(std::string nom, int degats);
+    Arme(std::string nom = "Epee", int degats = 10);
     void changer(std::string nom, int degats);
     void afficher() const;
     int getDegats() const;

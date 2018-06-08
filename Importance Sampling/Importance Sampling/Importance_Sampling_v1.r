@@ -50,9 +50,10 @@ lines(result$Mean,-log(result$IS.t.test),col="blue")
 
 #### proba empirique avec importance sampling
 
-mean<-c(0.4,0.45,0.5,0.55)
+mean<-c(0,0.4,0.45,0.5,0.55)
 for (m in mean)
 {
+  print(paste0("mean = ",m))
   pvalue<-list(zero=rep(0,500),zero5=rep(0,500),un=rep(0,500))
   tobs<- seq(0, 10, by=0.01)
   theta<-c(0,0.5,1)
@@ -98,6 +99,23 @@ for (m in mean)
          legend=c("theta = 1","theta = 0.5","theta = 0", "Vraie distribution"),
          fill=c("forestgreen","blue","grey2","red"))
   dev.off()
+  
+  jpeg(paste0("C:/Users/Marion/Documents/Stage/Importance Sampling/sd_mean_",m,".jpeg"),res = 450, height = 12, width = 16, units = 'cm')
+  plot(tobs,log((pvalue$un-pnorm(tobs,lower.tail = FALSE))^2),type="l",col="forestgreen",main="Erreur - Importance Sampling")
+  lines(tobs,log(pvalue$zero5-pnorm(tobs,lower.tail = FALSE))^2),col="blue")
+  lines(tobs,log(pvalue$zero-pnorm(tobs,lower.tail = FALSE))^2),col="grey2",lwd=2)
+  
+  legend("topright",
+         legend=c("theta = 1","theta = 0.5","theta = 0"),
+         fill=c("forestgreen","blue","grey2"))
+  dev.off()
+  
+  print("theta = 0")
+  print(sum(tail((pvalue$zero-pnorm(tobs,lower.tail = FALSE))^2,200)))
+  print("theta = 0.5")
+  print(sum(tail((pvalue$zero5-pnorm(tobs,lower.tail = FALSE))^2,200)))
+  print("theta = 1")
+  print(sum(tail((pvalue$un-pnorm(tobs,lower.tail = FALSE))^2,200)))
   
   
 }

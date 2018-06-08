@@ -11,12 +11,15 @@ class Vehicule //classe abstraite, ne crée pas d'objets
     virtual void affiche() const;  //Affiche une description du Vehicule
     virtual ~Vehicule();
     int getDate();
-    virtual int nbrRoues() const = 0; // ne renvoie rien pour Vehicule
+    virtual int nbrRoues() const = 0; // ne renvoie rien pour Vehicule virtuelle pure
+    static void maMethode();
+    static int nombreVehicules();
 
     protected:
 
     int m_prix;  //Chaque véhicule a un prix
     int m_annee; // annee de fabrication
+    static int compteur; //attribut statique
 };
 
 
@@ -85,9 +88,11 @@ class Garage
     void retirerVehicule(int indiceVehicule);
     void afficherInfos();
     void nbrRoues() const;
+    static int nbrVehiculesGarage();
 
     private:
 
+    static int vehiculeGarage;
     std::vector<Vehicule*> m_liste;  //La vitesse maximale de la moto
 
 };

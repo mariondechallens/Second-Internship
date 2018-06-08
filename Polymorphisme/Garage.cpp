@@ -5,6 +5,9 @@
 
 using namespace std;
 
+int Vehicule::compteur = 0;
+int Garage::vehiculeGarage = 0;
+
 void Vehicule::affiche() const
 
 {
@@ -41,12 +44,12 @@ void Camion::affiche() const
 
 Vehicule::Vehicule(int prix, int annee) : m_prix(prix), m_annee(annee)
 {
-
+    ++compteur;
 }
 
 Vehicule::~Vehicule()
  {
-
+    --compteur;
  }
 
  Voiture::Voiture(int prix, int portes,int annee) : Vehicule(prix,annee), m_portes(portes)
@@ -56,7 +59,7 @@ Vehicule::~Vehicule()
 
 Voiture::~Voiture()
  {
-
+    --compteur;
  }
 
  Moto::Moto(int prix, double vitesse,int annee) : Vehicule(prix,annee), m_vitesse(vitesse)
@@ -67,7 +70,7 @@ Voiture::~Voiture()
 
 Moto::~Moto()
 {
-
+    --compteur;
 }
 
 
@@ -78,7 +81,7 @@ Moto::~Moto()
 
 Camion::~Camion()
 {
-
+    --compteur;
 }
 
 int Vehicule::getDate()
@@ -89,11 +92,13 @@ int Vehicule::getDate()
 void Garage::ajouterVehicule(Vehicule* VehiculeAjoute)
 {
     m_liste.push_back(VehiculeAjoute);
+    vehiculeGarage++;
 }
 
 void Garage::retirerVehicule(int indiceVehicule)
 { // retire l'element dincie indiceVehicule
     m_liste.erase(m_liste.begin() + indiceVehicule);
+    vehiculeGarage--;
 }
 
 Garage::Garage()
@@ -132,4 +137,18 @@ int Moto::nbrRoues() const
     return 2;
 }
 
+void Vehicule::maMethode() // statique
+{
+    cout << "Salut :)" << endl;
+}
 
+
+int Vehicule::nombreVehicules()
+{
+    return compteur;
+}
+
+int Garage::nbrVehiculesGarage()
+{
+    return vehiculeGarage;
+}

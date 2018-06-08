@@ -16,8 +16,15 @@ int main()
     liste.ajouterVehicule(new Camion(20000,200,2004));
 
     liste.afficherInfos();
+    cout << "Il y a "<< Vehicule::nombreVehicules() << " vehicules crees."<< endl;
+    cout << "Il y a "<< Garage::nbrVehiculesGarage() << " vehicules dans le garage."<< endl;
+    cout << endl;
 
     liste.retirerVehicule(1);
+    cout << "Il y a "<< Vehicule::nombreVehicules() << " vehicules crees."<< endl;
+    cout << "Il y a "<< Garage::nbrVehiculesGarage() << " vehicules dans le garage."<< endl;
+
+
     liste.ajouterVehicule(new Moto);
 
 
@@ -33,6 +40,12 @@ int main()
     Moto* point(0); // pointeur vers une moto
     point = new Moto(500,5);
     cout << "Moto: " << point->nbrRoues() << endl;
+
+    Vehicule::maMethode(); // methode statique
+    cout << endl;
+    cout << "Il y a "<< Vehicule::nombreVehicules() << " vehicules crees."<< endl;
+    cout << "Il y a "<< Garage::nbrVehiculesGarage() << " vehicules dans le garage."<< endl;
+
 
 
     return 0;

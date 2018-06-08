@@ -24,14 +24,11 @@ void ZFraction::simplifier()
     }
 }
 
-bool ZFraction::estEgalA(ZFraction const& b) const
-{
-    return(m_numerateur == b.m_numerateur && m_denominateur == b.m_denominateur);
-}
+
 
 bool operator==(ZFraction const& a, ZFraction const& b)
 {
-    return a.estEgalA(b);
+    return(a.m_numerateur == b.m_numerateur && a.m_denominateur == b.m_denominateur);
 }
 
 bool operator!=(ZFraction const& a, ZFraction const& b)
@@ -50,16 +47,10 @@ int PGCD(int a, int b)
     return a;
 }
 
-
-bool ZFraction::estPlusPetitQue(ZFraction const& b) const
-{
-    return(m_numerateur*b.m_denominateur < b.m_numerateur*m_denominateur);
-}
-
 bool operator<(ZFraction const& a, ZFraction const& b)
 {
 
-    return a.estPlusPetitQue(b);
+    return(a.m_numerateur*b.m_denominateur < b.m_numerateur*a.m_denominateur);
 
 }
 
@@ -166,7 +157,7 @@ void ZFraction::afficher(ostream &flux) const
 
 
 }
-ostream& operator<<( ostream &flux, ZFraction const& frac)
+ostream &operator<<( ostream &flux, ZFraction const& frac)
 {
     frac.afficher(flux);
     return flux;

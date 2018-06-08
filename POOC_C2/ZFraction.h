@@ -9,7 +9,6 @@ public:
     ZFraction(int numerateur = 0, int denominateur = 1);
     bool estEgalA(ZFraction const& b) const;
     bool estPlusPetitQue(ZFraction const& b) const;
-    void afficher(std::ostream &flux) const;
     void simplifier();
     int numerateur() const;
     int denominateur() const;
@@ -29,19 +28,25 @@ public:
 private:
     int m_numerateur;
     int m_denominateur;
+    void afficher(std::ostream &flux) const;
+
+    friend std::ostream& operator<<( std::ostream &flux, ZFraction const& frac);
+    friend bool operator==(ZFraction const& a, ZFraction const& b);
+    friend bool operator<(ZFraction const& a, ZFraction const& b);
 };
-bool operator==(ZFraction const& a, ZFraction const& b);
+
+
 bool operator!=(ZFraction const& a, ZFraction const& b);
-bool operator<(ZFraction const& a, ZFraction const& b);
 bool operator>(ZFraction const& a, ZFraction const& b);
 bool operator>=(ZFraction const& a, ZFraction const& b);
 bool operator<=(ZFraction const& a, ZFraction const& b);
+
 ZFraction operator-(ZFraction const& a);
 ZFraction operator+(ZFraction const& a, ZFraction const& b);
 ZFraction operator-(ZFraction const& a, ZFraction const& b);
 ZFraction operator*(ZFraction const& a, ZFraction const& b);
 ZFraction operator/(ZFraction const& a, ZFraction const& b);
-std::ostream& operator<<( std::ostream &flux, ZFraction const& frac);
+
 int PGCD(int a, int b);
 ZFraction valeurAbs(ZFraction const& a);
 ZFraction racineCarree(ZFraction const& a);

@@ -50,49 +50,57 @@ lines(result$Mean,-log(result$IS.t.test),col="blue")
 
 #### proba empirique avec importance sampling
 
-pvalue<-list(zero=rep(0,500),zero5=rep(0,500),un=rep(0,500))
-tobs<-c(1:500)*0.01
-theta<-c(0,0.5,1)
-
-for (i in 1:length(theta))
+mean<-c(0.4,0.45,0.5,0.55)
+for (m in mean)
 {
-  set.seed(1)
-  x <- rnorm(200, mean=0, sd=1)
-  y <- rnorm(200, mean=0.5, sd=1)
-  z <- c(x,y)
-  L0 <- c(rep(1L,200),rep(2L,200))
+  pvalue<-list(zero=rep(0,500),zero5=rep(0,500),un=rep(0,500))
+  tobs<- seq(0, 10, by=0.01)
+  theta<-c(0,0.5,1)
   
-  # la matrice de distances entre tous les elts de z
-  DIST <- outer(z, z, function(a,b) abs(a-b) )
-  L <- L0; L[1] <- L[1] + 0L # force copie
-  k <- c(length(x), length(y))
-  
-  B <- 10000;
-  w <- numeric(B)
-  t.perm <- numeric(B)
-  for(n in 1:B) {
-    w[n] <- IS(k, DIST, L, theta[i]); 
-    t.perm[n] <- t_test(z , L)
-  }
-  
-  #On modifie les poids pour que la somme fasse 1 :
-  w <- w / sum(w)
-  
-  for (j in 1:length(tobs))
+  for (i in 1:length(theta))
   {
-    pvalue[[i]][j]<-sum( w*(t.perm < tobs[j]) )
+    set.seed(1)
+    x <- rnorm(200, mean=0, sd=1)
+    y <- rnorm(200, mean=m, sd=1)
+    z <- c(x,y)
+    L0 <- c(rep(1L,200),rep(2L,200))
+    
+    # la matrice de distances entre tous les elts de z
+    DIST <- outer(z, z, function(a,b) abs(a-b) )
+    L <- L0; L[1] <- L[1] + 0L # force copie
+    k <- c(length(x), length(y))
+    
+    B <- 10000;
+    w <- numeric(B)
+    t.perm <- numeric(B)
+    for(n in 1:B) {
+      w[n] <- IS(k, DIST, L, theta[i]); 
+      t.perm[n] <- t_test(z , L)
+    }
+    
+    #On modifie les poids pour que la somme fasse 1 :
+    w <- w / sum(w)
+    
+    for (j in 1:length(tobs))
+    {
+      pvalue[[i]][j]<-sum( w*(t.perm  > tobs[j]) )
+    }
+    
   }
+  
+  jpeg(paste0("C:/Users/Marion/Documents/Stage/Importance Sampling/mean_",m,".jpeg"),res = 450, height = 12, width = 16, units = 'cm')
+  plot(tobs,log10(pvalue$un),type="l", ylim=c(-20,0),col="forestgreen",main="p(z>zobs) - Importance Sampling")
+  lines(tobs,log10(pnorm(tobs,lower.tail = FALSE)),col="red")
+  lines(tobs,log10(pvalue$zero5),col="blue")
+  lines(tobs,log10(pvalue$zero),col="grey2",lwd=2)
+  
+  legend("topright",
+         legend=c("theta = 1","theta = 0.5","theta = 0", "Vraie distribution"),
+         fill=c("forestgreen","blue","grey2","red"))
+  dev.off()
+  
   
 }
-
-plot(tobs,pvalue$zero,type="l")
-lines(tobs,pvalue$zero5,col="blue")
-lines(tobs,pvalue$un,col="forestgreen")
-lines(tobs,pnorm(tobs),col="red")
-legend("bottomright",
-       legend=c("theta = 0","theta = 0.5","theta = 1", "Vraie distribution"),
-       fill=c("black","blue","forestgreen","red"))
-
 
 
 

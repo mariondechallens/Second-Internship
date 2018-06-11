@@ -4,14 +4,27 @@
 #include <QApplication>
 #include <QWidget>
 #include <QPushButton>
+#include <QSlider>
+#include <QProgressBar>
 
 class MaFenetre : public QWidget // On hérite de QWidget (IMPORTANT)
 {
+    Q_OBJECT //macro
+
     public:
-    MaFenetre(int largeur = 300,int hauteur = 150);
+    MaFenetre();
+
+    public slots:
+    void changerLargeur(int largeur);
+    void changerHauteur(int hauteur);
+
+    signals:
+    void largeurMax();
+    void hauteurMax();
 
     private:
-    QPushButton *m_bouton;
+    QSlider *m_slider;
+    QSlider *m_slider2;
 };
 
 #endif // MAFENETRE_H

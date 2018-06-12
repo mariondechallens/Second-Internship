@@ -1,7 +1,7 @@
 Sys.setenv("PKG_CXXFLAGS"="-std=c++11")
 Rcpp::sourceCpp("Importance_Sampling_v1.cpp")
 
-vect<-runif(100,0.4,0.65)
+vect<-runif(10,0.4,0.65)
 result<-data.frame(matrix(nrow=length(vect),ncol=4))
 colnames(result)<-c("Mean","True.p","IS","IS.t.test")
 result$Mean<-vect
@@ -47,80 +47,106 @@ write.csv2(result,file="C:/Users/Marion/Documents/Stage/Importance Sampling/test
 plot(result$Mean,-log(result$True.p),col="red",type="l")
 lines(result$Mean,-log(result$IS.t.test),col="blue")
 
-
-#### proba empirique avec importance sampling
-
-mean<-c(0,0.4,0.45,0.5,0.55)
-for (m in mean)
+#k2D DC
+for (i in 1:nrow(DIST))
 {
-  print(paste0("mean = ",m))
-  pvalue<-list(zero=rep(0,500),zero5=rep(0,500),un=rep(0,500))
-  tobs<- seq(0, 10, by=0.01)
-  theta<-c(0,0.5,1)
-  
-  for (i in 1:length(theta))
+  for (j in 1:ncol(DIST))
   {
-    set.seed(1)
-    x <- rnorm(200, mean=0, sd=1)
-    y <- rnorm(200, mean=m, sd=1)
-    z <- c(x,y)
-    L0 <- c(rep(1L,200),rep(2L,200))
-    
-    # la matrice de distances entre tous les elts de z
-    DIST <- outer(z, z, function(a,b) abs(a-b) )
-    L <- L0; L[1] <- L[1] + 0L # force copie
-    k <- c(length(x), length(y))
-    
-    B <- 10000;
-    w <- numeric(B)
-    t.perm <- numeric(B)
-    for(n in 1:B) {
-      w[n] <- IS(k, DIST, L, theta[i]); 
-      t.perm[n] <- t_test(z , L)
-    }
-    
-    #On modifie les poids pour que la somme fasse 1 :
-    w <- w / sum(w)
-    
-    for (j in 1:length(tobs))
-    {
-      pvalue[[i]][j]<-sum( w*(t.perm  > tobs[j]) )
-    }
-    
+    DIST[i,j] <- sqrt(z[i]^2 + z[j]^2 - 2*K[i,j])
   }
-  
-  jpeg(paste0("C:/Users/Marion/Documents/Stage/Importance Sampling/mean_",m,".jpeg"),res = 450, height = 12, width = 16, units = 'cm')
-  plot(tobs,log10(pvalue$un),type="l", ylim=c(-20,0),col="forestgreen",main="p(z>zobs) - Importance Sampling")
-  lines(tobs,log10(pnorm(tobs,lower.tail = FALSE)),col="red")
-  lines(tobs,log10(pvalue$zero5),col="blue")
-  lines(tobs,log10(pvalue$zero),col="grey2",lwd=2)
-  
-  legend("topright",
-         legend=c("theta = 1","theta = 0.5","theta = 0", "Vraie distribution"),
-         fill=c("forestgreen","blue","grey2","red"))
-  dev.off()
-  
-  jpeg(paste0("C:/Users/Marion/Documents/Stage/Importance Sampling/sd_mean_",m,".jpeg"),res = 450, height = 12, width = 16, units = 'cm')
-  plot(tobs,log((pvalue$un-pnorm(tobs,lower.tail = FALSE))^2),type="l",col="forestgreen",main="Erreur - Importance Sampling")
-  lines(tobs,log(pvalue$zero5-pnorm(tobs,lower.tail = FALSE))^2),col="blue")
-  lines(tobs,log(pvalue$zero-pnorm(tobs,lower.tail = FALSE))^2),col="grey2",lwd=2)
-  
-  legend("topright",
-         legend=c("theta = 1","theta = 0.5","theta = 0"),
-         fill=c("forestgreen","blue","grey2"))
-  dev.off()
-  
-  print("theta = 0")
-  print(sum(tail((pvalue$zero-pnorm(tobs,lower.tail = FALSE))^2,200)))
-  print("theta = 0.5")
-  print(sum(tail((pvalue$zero5-pnorm(tobs,lower.tail = FALSE))^2,200)))
-  print("theta = 1")
-  print(sum(tail((pvalue$un-pnorm(tobs,lower.tail = FALSE))^2,200)))
-  
-  
 }
-
-
+DIST[is.na(DIST)]<-0
 
 # Tr <- replicate(1e4, { IS(k, DIST, L, 0.5); t_test(z, L) } )
 # hist(Tr)
+# mmpp
+k2dM<-function (Mat, direction = "k2d", method = "norm", scale = 1, 
+          pos = TRUE) 
+{
+  if (direction == "k2d") {
+    num <- nrow(Mat)
+    index <- 1:num
+    comb.index <- combn(index, 2)
+    myD <- Mat - Mat
+    if (method == "norm") {
+      apply(comb.index, 2, FUN = function(x) {
+        valxx <- Mat[x[1], x[1]]
+        valxy <- Mat[x[1], x[2]]
+        valyy <- Mat[x[2], x[2]]
+        myD[x[1], x[2]] <<- myD[x[2], x[1]] <<- sqrt((valxx - 
+                                                        2 * valxy + valyy)^2)
+      })
+      diag(myD) <- 0
+    }
+    else if (method == "CS") {
+      apply(comb.index, 2, FUN = function(x) {
+        valxx <- Mat[x[1], x[1]]
+        valxy <- Mat[x[1], x[2]]
+        valyy <- Mat[x[2], x[2]]
+        myD[x[1], x[2]] <<- myD[x[2], x[1]] <<- acos(valxy^2/(valxx * 
+                                                                valyy))
+      })
+      diag(myD) <- 0
+    }
+    else if (method == "exp") {
+      apply(comb.index, 2, FUN = function(x) {
+        valxx <- Mat[x[1], x[1]]
+        valxy <- Mat[x[1], x[2]]
+        valyy <- Mat[x[2], x[2]]
+        myD[x[1], x[2]] <<- myD[x[2], x[1]] <<- exp(-valxy/scale)
+      })
+      diag(myD) <- 0
+    }
+    else if (method == "naive") {
+      apply(comb.index, 2, FUN = function(x) {
+        valxx <- Mat[x[1], x[1]]
+        valxy <- Mat[x[1], x[2]]
+        valyy <- Mat[x[2], x[2]]
+        myD[x[1], x[2]] <<- myD[x[2], x[1]] <<- 1 - valxy/sqrt(valxx * 
+                                                                 valyy)
+      })
+      diag(myD) <- 0
+    }
+    else {
+    }
+    myD[which(is.na(myD))] <- max(myD, na.rm = TRUE)
+    return(myD)
+  }
+  else {
+    num <- nrow(Mat)
+    index <- 1:num
+    comb.index <- combn(index, 2)
+    if (method == "DC") {
+      myK <- Mat - Mat
+      apply(comb.index, 2, FUN = function(x) {
+        myK[x[1], x[2]] <<- myK[x[2], x[1]] <<- (-Mat[x[1], 
+                                                      x[2]] + sum(Mat[, x[2]])/num + sum(Mat[, x[1]])/num - 
+                                                   sum(Mat)/(num^2))/2
+      })
+      Mat <- myK
+      rm(myK)
+    }
+    else if (method == "exp") {
+      myK <- Mat - Mat
+      apply(comb.index, 2, FUN = function(x) {
+        valxx <- Mat[x[1], x[1]]
+        valxy <- Mat[x[1], x[2]]
+        valyy <- Mat[x[2], x[2]]
+        myK[x[1], x[2]] <<- myK[x[2], x[1]] <<- exp(-valxy/scale)  #myK au lieu de myD
+      })
+      Mat <- myK
+      rm(myK)
+    }
+    else {
+    }
+    if (pos) {
+      eig <- eigen(Mat)
+      eig$values[eig$values < 0] <- 10^(-8)
+      myK <- eig$vectors %*% diag(eig$values, length(eig$values)) %*% 
+        t(eig$vectors)
+      myK <- 0.5 * (myK + t(myK))
+      return(myK)
+    }
+    return(myK)
+  }
+}

@@ -98,17 +98,20 @@ k2dM<-function (Mat, direction = "k2d", method = "norm", scale = 1,
 
 ## Tests 
 
-vect<-runif(10,0.4,0.65)
-result<-data.frame(matrix(nrow=3*length(vect),ncol=4))
-colnames(result)<-c("Dist.matrix","True.p","IS","IS.t.test")
+vect<-runif(100,0.4,0.65)
+result<-data.frame(matrix(nrow=3*length(vect),ncol=3))
+colnames(result)<-c("Dist.matrix","True.p.student","IS.t.test")
 result$Dist.matrix<-rep(c("outer","exp Kernel","DC kernel"),length(vect))
 
-l<-1
-while (l <= (nrow(result) - 3))
+l<-1 # pour remplir result
+v<-1 # pour indicier vect
+while (l < nrow(result))
 {
+  print(paste0("l = ",l))
+  print(paste0("v = ",v))
   set.seed(1)
   x <- rnorm(200, mean=0, sd=1)
-  y <- rnorm(200, mean=vect[l], sd=1)
+  y <- rnorm(200, mean=vect[v], sd=1)
   z <- c(x,y)
   L0 <- c(rep(1L,200),rep(2L,200))
   
@@ -126,8 +129,7 @@ while (l <= (nrow(result) - 3))
   
   ## Distance matrix with outer 
   result[l,2]<- 2.0*(1-pt(t.obs, df=length(z)- 2)) # True p-value
-  result[l,3]<-Run_IS(F, z, L0, DIST, 1e5, 0.8, 2)$p
-  result[l,4]<-Run_IS_t_test(z, L0, DIST, 1e5, 0.8, 2)$p
+  result[l,3]<-Run_IS_t_test(z, L0, DIST, 1e5, 0.8, 2)$p
   
   ## Distance matrix with exponential Kernel 
   theta<-0.6
@@ -135,8 +137,7 @@ while (l <= (nrow(result) - 3))
   DISTe<-log(Ke)*(-1/theta)
   
   result[l+1,2]<- 2.0*(1-pt(t.obs, df=length(z)- 2)) # True p-value
-  result[l+1,3]<-Run_IS(F, z, L0, DISTe, 1e5, 0.8, 2)$p
-  result[l+1,4]<-Run_IS_t_test(z, L0, DISTe, 1e5, 0.8, 2)$p
+  result[l+1,3]<-Run_IS_t_test(z, L0, DISTe, 1e5, 0.8, 2)$p
   
   ## Distance matrix with DC Kernel 
   Kdc<-k2dM(DIST,direction="d2k",method="DC")
@@ -153,10 +154,10 @@ while (l <= (nrow(result) - 3))
   }
   
   result[l+2,2]<- 2.0*(1-pt(t.obs, df=length(z)- 2)) # True p-value
-  result[l+2,3]<-Run_IS(F, z, L0, DISTe, 1e5, 0.8, 2)$p
-  result[l+2,4]<-Run_IS_t_test(z, L0, DISTe, 1e5, 0.8, 2)$p
+  result[l+2,3]<-Run_IS_t_test(z, L0, DISTe, 1e5, 0.8, 2)$p
   
   l<-l+3
+  v<-v+1
 }
 
 View(result)

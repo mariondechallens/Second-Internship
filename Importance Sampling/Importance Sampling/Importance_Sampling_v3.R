@@ -98,21 +98,12 @@ k2dM<-function (Mat, direction = "k2d", method = "norm", scale = 1,
 
 ## Tests 
 
-# vect<-runif(100,0.4,0.65)
-# result<-data.frame(matrix(nrow=3*length(vect),ncol=3))
-# colnames(result)<-c("Dist.matrix","True.p.student","IS.t.test")
-# result$Dist.matrix<-rep(c("outer","exp Kernel","DC kernel"),length(vect))
-# 
-# l<-1 # pour remplir result
-# v<-1 # pour indicier vect
-
-tobs<- seq(0, 5, by=0.01)
-pvalue<-list(outer=rep(0,length((tobs))),exp=rep(0,length(tobs)),dc=rep(0,length(tobs)))
-
-# while (l < nrow(result))
-
-  # print(paste0("l = ",l))
-  # print(paste0("v = ",v))
+for (B in c(1e4,1e5,1e6))
+{
+  tobs<- seq(0, 10, by=0.01)
+  pvalue<-list(outer=rep(0,length((tobs))),exp=rep(0,length(tobs)),dc=rep(0,length(tobs)))
+  
+  
   set.seed(1)
   x <- rnorm(200, mean=0, sd=1)
   y <- rnorm(200, mean=0.5, sd=1)
@@ -126,7 +117,7 @@ pvalue<-list(outer=rep(0,length((tobs))),exp=rep(0,length(tobs)),dc=rep(0,length
   L <- L0; L[1] <- L[1] + 0L # force copie
   k <- c(length(x), length(y))
   
-  B <- 10000
+  #B <- 1000000
   w <- numeric(B)
   t.perm <- numeric(B)
   for(n in 1:B) {
@@ -141,23 +132,15 @@ pvalue<-list(outer=rep(0,length((tobs))),exp=rep(0,length(tobs)),dc=rep(0,length
   {
     pvalue$outer[j]<-sum( w*(t.perm  > tobs[j]) )
   }
-  #  F <- function(z, L) abs(t.test(z ~ L, var.equal = TRUE)$statistic)
-  # F <- function(z, L) abs(t_test(z, L))
-  # 
-  # t.obs <- F(z, L0);
-  
-  ## Distance matrix with outer 
-  # result[l,2]<- 2.0*(1-pt(t.obs, df=length(z)- 2)) # True p-value
-  # result[l,3]<-Run_IS_t_test(z, L0, DIST, 1e5, 0.8, 2)$p
   
   ## Distance matrix with exponential Kernel 
-  theta<-0.6
+  theta<-0.5
   Ke<-k2dM(DIST,direction="d2k",method="exp",scale=1/theta)
   DISTe<-log(Ke)*(-1/theta)
   
   w <- numeric(B)
   for(n in 1:B) {
-    w[n] <- IS(k, DISTe, L, 0.6); 
+    w[n] <- IS(k, DISTe, L, 0.5); 
     t.perm[n] <- t_test(z , L)
   }
   
@@ -168,23 +151,26 @@ pvalue<-list(outer=rep(0,length((tobs))),exp=rep(0,length(tobs)),dc=rep(0,length
   {
     pvalue$exp[j]<-sum( w*(t.perm  > tobs[j]) )
   }
-  # result[l+1,2]<- 2.0*(1-pt(t.obs, df=length(z)- 2)) # True p-value
-  # result[l+1,3]<-Run_IS_t_test(z, L0, DISTe, 1e5, 0.8, 2)$p
   
   ## Distance matrix with DC Kernel 
   Kdc<-k2dM(DIST,direction="d2k",method="DC")
   DISTdc<-DIST-DIST
-  for (i in 1:nrow(DISTdc))
+  c<-0
+  for (i in 1:nrow(DIST))
   {
-    for (j in 1:ncol(DISTdc))
+    for (j in 1:nrow(DIST))
     {
-      if (z[i]^2 + z[j]^2 - 2*Kdc[i,j] < 0)
+      if (Kdc[i,i] + Kdc[j,j] - 2*Kdc[i,j] < 0)
+      {
         DISTdc[i,j] <- 0
+        c<-c+1
+      }
+      
       else
-        DISTdc[i,j] <- sqrt(z[i]^2 + z[j]^2 - 2*Kdc[i,j])
+        DISTdc[i,j] <- sqrt(Kdc[i,i] + Kdc[j,j] - 2*Kdc[i,j])
     }
   }
-  
+  print(paste0("nan = ",c))
   w <- numeric(B)
   for(n in 1:B) {
     w[n] <- IS(k, DISTdc, L, 0.5); 
@@ -198,26 +184,29 @@ pvalue<-list(outer=rep(0,length((tobs))),exp=rep(0,length(tobs)),dc=rep(0,length
   {
     pvalue$dc[j]<-sum( w*(t.perm  > tobs[j]) )
   }
-  # result[l+2,2]<- 2.0*(1-pt(t.obs, df=length(z)- 2)) # True p-value
-  # result[l+2,3]<-Run_IS_t_test(z, L0, DISTe, 1e5, 0.8, 2)$p
-
-
-# View(result)
-# write.csv2(result,"result.csv")
-# 
-# plot(vect,-log10(subset(result,result$Dist.matrix == "DC kernel")$True.p.student),col="red",type="l")
-# lines(vect,-log10(subset(result,result$Dist.matrix == "DC kernel")$IS.t.test),col="blue")
-# lines(vect,-log10(subset(result,result$Dist.matrix == "exp Kernel")$IS.t.test),col="forestgreen")
-# lines(vect,-log10(subset(result,result$Dist.matrix == "outer")$IS.t.test),col="yellow")
-# legend("topleft",
-#        legend=c("True.p.student","DC Kernel","expo Kernel", "outer"),
-#        fill=c("red","blue","forestgreen","yellow"))
   
-  plot(tobs,log10(pvalue$outer),type="l",col="forestgreen",ylab="log10(p)",main=paste0("p(z>zobs) - Importance Sampling with kernel"))
+  jpeg(paste0("C:/Users/Marion/Documents/Stage/Importance Sampling/Plots/Kernel/Importance Sampling with kernel and ",B," permutations.jpeg"),res = 450, height = 12, width = 16, units = 'cm')
+  plot(tobs,log10(pvalue$outer),type="l",col="forestgreen",ylab="log10(p)",main=paste0(paste0("p(z>zobs) - IS with kernel and ",B," permutations")))
   lines(tobs,log10(pnorm(tobs,lower.tail = FALSE)),col="red",ylab="")
+  #lines(tobs,log10(2.0*(1-pt(tobs, df=length(z)- 2))),col="red",ylab="")
   lines(tobs,log10(pvalue$exp),col="blue",ylab="")
   lines(tobs,log10(pvalue$dc),col="grey2",ylab="")
   
   legend("topright",
-         legend=c("outer","True p normale","exp Kernel", "DC Kernel"),
+         legend=c("outer","True p","exp Kernel", "DC Kernel"),
          fill=c("forestgreen","red","blue","grey2"))
+  dev.off()
+  
+  
+  jpeg(paste0("C:/Users/Marion/Documents/Stage/Importance Sampling/Plots/Kernel/Error on IS with kernel and ",B," permutations.jpeg"),res = 450, height = 12, width = 16, units = 'cm')
+  plot(tobs,(log10(pvalue$outer)-log10(pnorm(tobs,lower.tail = FALSE)))^2,type="l",ylab="Carre des difference des log10(p)", col="forestgreen",main=paste0("Error on Importance Sampling with kernel and ",B," permutations"))
+  lines(tobs,(log10(pvalue$exp)-log10(pnorm(tobs,lower.tail = FALSE)))^2,col="blue",ylab="")
+  lines(tobs,(log10(pvalue$dc)-log10(pnorm(tobs,lower.tail = FALSE)))^2,col="grey2",ylab="")
+  
+  legend("topleft",
+         legend=c("outer","exp","DC"),
+         fill=c("forestgreen","blue","grey2"))
+  dev.off()
+  
+}
+  

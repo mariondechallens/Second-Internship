@@ -100,6 +100,7 @@ k2dM<-function (Mat, direction = "k2d", method = "norm", scale = 1,
 
 for (B in c(1e4,1e5,1e6))
 {
+  print(paste0("Number of permutations = ",B))
   tobs<- seq(0, 10, by=0.01)
   pvalue<-list(outer=rep(0,length((tobs))),exp=rep(0,length(tobs)),dc=rep(0,length(tobs)))
   
@@ -170,7 +171,7 @@ for (B in c(1e4,1e5,1e6))
         DISTdc[i,j] <- sqrt(Kdc[i,i] + Kdc[j,j] - 2*Kdc[i,j])
     }
   }
-  print(paste0("nan = ",c))
+  print(paste0("NaN in Dc Kernel = ",c))
   w <- numeric(B)
   for(n in 1:B) {
     w[n] <- IS(k, DISTdc, L, 0.5); 
@@ -199,7 +200,7 @@ for (B in c(1e4,1e5,1e6))
   
   
   jpeg(paste0("C:/Users/Marion/Documents/Stage/Importance Sampling/Plots/Kernel/Error on IS with kernel and ",B," permutations.jpeg"),res = 450, height = 12, width = 16, units = 'cm')
-  plot(tobs,(log10(pvalue$outer)-log10(pnorm(tobs,lower.tail = FALSE)))^2,type="l",ylab="Carre des difference des log10(p)", col="forestgreen",main=paste0("Error on Importance Sampling with kernel and ",B," permutations"))
+  plot(tobs,(log10(pvalue$outer)-log10(pnorm(tobs,lower.tail = FALSE)))^2,type="l",ylab="Carre des difference des log10(p)", col="forestgreen",main=paste0("Error on IS with kernel and ",B," permutations"))
   lines(tobs,(log10(pvalue$exp)-log10(pnorm(tobs,lower.tail = FALSE)))^2,col="blue",ylab="")
   lines(tobs,(log10(pvalue$dc)-log10(pnorm(tobs,lower.tail = FALSE)))^2,col="grey2",ylab="")
   

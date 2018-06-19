@@ -1,4 +1,5 @@
 #include "MaFenetre.h"
+#include "code.h"
 
 using namespace std;
 
@@ -75,33 +76,64 @@ MaFenetre::MaFenetre() : QWidget()  //constructeur
     setWindowTitle("Zero Class Generator");
 
     QObject::connect(m_quitter,SIGNAL(clicked()),qApp,SLOT(quit()));
+    QObject::connect(m_generer,SIGNAL(clicked()),this,SLOT(genererCode()));
 
 
 
  }
 
-/*void MaFenetre::ouvrirDialogue()
-{
-    // bool ok = false;
-    QString file = QFileDialog::getSaveFileName(this,"Sauver",QString(),"Images (*.png)");
-    QMessageBox::information(this,"Fichier","Vous avez sélectionné :\n" + file);
-    if (ok)
+void MaFenetre::genererCode()
+{   if (m_nom->text().isEmpty())
 
+    {
+        QMessageBox::critical(this, "Erreur", "Veuillez entrer au moins un nom de classe");
+        return; // Arrêt de la méthode
+    }
+    // Si tout va bien, on génère le code
+        QString code;
+
+        if (m_com->isChecked()) // On a demandé à inclure les commentaires
         {
-            QMessageBox::information(this, "Nouvelle police", "La police est maintenant " + police.toString());
-            m_bouton->setFont(police);
+            code += "/*\nAuteur : " + m_auteur->text() + "\n";
+            code += "Date de création : " + m_date->date().toString() + "\n\n";
+            code += "Rôle :\n" + m_texte->toPlainText() + "\n*/\n\n\n";
         }
 
-        else
-
+        if (m_header->isChecked())
         {
-            QMessageBox::critical(this, "Police", "Vous n'avez pas change de police snif.");
+            code += "#ifndef HEADER_" + m_nom->text().toUpper() + "\n";
+            code += "#define HEADER_" + m_nom->text().toUpper() + "\n\n\n";
         }
-    QPalette palette; // creation d'une palette de couleur
-    palette.setColor(QPalette::ButtonText,couleur);
-    m_bouton->setPalette(palette);
+
+        code += "class " + m_nom->text();
+
+        if (!m_classeMere->text().isEmpty())
+        {
+            code += " : public " + m_classeMere->text();
+        }
+
+        code += "\n{\n    public:\n";
+        if (m_const->isChecked())
+        {
+            code += "        " + m_nom->text() + "();\n";
+        }
+        if (m_destr->isChecked())
+        {
+            code += "        ~" + m_nom->text() + "();\n";
+        }
+        code += "\n\n    public slots:\n";
+        code += "\n\n    protected:\n";
+        code += "\n\n    private:\n";
+        code += "};\n\n";
+
+        if (m_header->isChecked())
+        {
+            code += "#endif\n";
+        }
 
 
+    MonCode *fenetreCode = new MonCode(code, this);
+    fenetreCode->exec();
 }
-*/
+
 

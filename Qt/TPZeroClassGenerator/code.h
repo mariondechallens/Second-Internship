@@ -1,19 +1,19 @@
 #ifndef CODE_H
 #define CODE_H
 
-#include <QApplication>
 #include <QtWidgets>
 
-class MonCode : public QDialog // On hérite de QWidget (IMPORTANT)
+class MonCode : public QDialog
 {
-    Q_OBJECT //macro
 
     public:
-    MonCode();
+    MonCode(QString &texte, QWidget *parent);
 
     public slots:
 
     private:
+    QTextEdit *m_code;
+    QPushButton *m_fermer;
 
 };
 

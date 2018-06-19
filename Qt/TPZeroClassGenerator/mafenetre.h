@@ -11,7 +11,7 @@ class MaFenetre : public QWidget // On hérite de QWidget (IMPORTANT)
     MaFenetre();
 
     public slots:
-    //void ouvrirDialogue();
+    void genererCode();
 
     private:
     QLineEdit *m_nom;

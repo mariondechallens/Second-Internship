@@ -12,11 +12,13 @@ class MaFenetre : public QWidget // On hérite de QWidget (IMPORTANT)
 
     public slots:
     void genererCode();
+    void afficherHeader();
 
     private:
     QLineEdit *m_nom;
     QLineEdit *m_classeMere;
     QLineEdit *m_auteur;
+    QLineEdit *m_licence;
     QDateEdit *m_date;
     QTextEdit *m_texte;
     QCheckBox *m_header;

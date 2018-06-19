@@ -39,14 +39,18 @@ MaFenetre::MaFenetre() : QWidget()  //constructeur
     // Commentaires
 
     m_auteur = new QLineEdit;
+    m_licence = new QLineEdit;
     m_date = new QDateEdit;
     m_texte = new QTextEdit;
+
+    m_licence->setText("GPL");
     m_auteur->setText("Marion");
     m_texte->setText("Gere un personnage de type Demon");
 
     QFormLayout *layout3 = new QFormLayout;
     layout3->addRow("&Auteur",m_auteur);
     layout3->addRow("Da&te de creation",m_date);
+    layout3->addRow("&Licence",m_licence);
     layout3->addRow("&Role de la classe", m_texte);
 
     m_com = new QGroupBox("Ajouter des commentaires");
@@ -77,10 +81,28 @@ MaFenetre::MaFenetre() : QWidget()  //constructeur
 
     QObject::connect(m_quitter,SIGNAL(clicked()),qApp,SLOT(quit()));
     QObject::connect(m_generer,SIGNAL(clicked()),this,SLOT(genererCode()));
+    QObject::connect(m_nom,SIGNAL(textChanged(QString)),this,SLOT(afficherHeader()));
 
 
 
  }
+
+void MaFenetre::afficherHeader()
+{
+    if (m_header->isChecked())
+    {
+        QDialog header;
+        QString text;
+        text += "HEADER_" + m_nom->text().toUpper();
+        QLineEdit ligne(&header);
+        ligne.setText(text);
+        header.resize(300,100);
+        header.setWindowTitle("Texte du header");
+        header.exec();
+
+    }
+
+}
 
 void MaFenetre::genererCode()
 {   if (m_nom->text().isEmpty())
@@ -96,6 +118,7 @@ void MaFenetre::genererCode()
         {
             code += "/*\nAuteur : " + m_auteur->text() + "\n";
             code += "Date de création : " + m_date->date().toString() + "\n\n";
+            code += "Licence : " + m_licence->text() + "\n\n";
             code += "Rôle :\n" + m_texte->toPlainText() + "\n*/\n\n\n";
         }
 

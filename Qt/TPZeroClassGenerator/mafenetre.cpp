@@ -6,7 +6,7 @@ using namespace std;
 MaFenetre::MaFenetre() : QWidget()  //constructeur
 {
     // Def de la classe
-    QGroupBox *groupbox1 = new QGroupBox("Definition de la classe",this);
+
     m_nom = new QLineEdit;
     m_classeMere = new QLineEdit;
     m_nom->setText("Demoniste");
@@ -15,26 +15,28 @@ MaFenetre::MaFenetre() : QWidget()  //constructeur
     QFormLayout *layout1 = new QFormLayout;
     layout1->addRow("&Nom",m_nom);
     layout1->addRow("Classe &mere",m_classeMere);
+
+    QGroupBox *groupbox1 = new QGroupBox("Definition de la classe");
     groupbox1->setLayout(layout1);
 
     // Options
-    QGroupBox *groupbox2 = new QGroupBox("Options",this);
+
     m_header = new QCheckBox("Proteger le &header contre les inclusions multiples");
-    m_const = new QCheckBox("Generer un &constructeur par defaut");
-    m_destr = new QCheckBox("Generer un &destructeur");
     m_header->setChecked(true);
+    m_const = new QCheckBox("Generer un &constructeur par defaut");
     m_const->setChecked(true);
+    m_destr = new QCheckBox("Generer un &destructeur");
 
     QVBoxLayout *layout2 = new QVBoxLayout;
     layout2->addWidget(m_header);
     layout2->addWidget(m_const);
     layout2->addWidget(m_destr);
+
+    QGroupBox *groupbox2 = new QGroupBox("Options");
     groupbox2->setLayout(layout2);
 
     // Commentaires
-    QGroupBox *groupbox3 = new QGroupBox("Ajouter des commentaires",this);
-    groupbox3->setCheckable(true);
-    groupbox3->setChecked(true);
+
     m_auteur = new QLineEdit;
     m_date = new QDateEdit;
     m_texte = new QTextEdit;
@@ -45,37 +47,45 @@ MaFenetre::MaFenetre() : QWidget()  //constructeur
     layout3->addRow("&Auteur",m_auteur);
     layout3->addRow("Da&te de creation",m_date);
     layout3->addRow("&Role de la classe", m_texte);
-    groupbox3->setLayout(layout3);
+
+    m_com = new QGroupBox("Ajouter des commentaires");
+    m_com->setCheckable(true);
+    m_com->setChecked(true);
+    m_com->setLayout(layout3);
 
 
     // Boutons
-    QPushButton *generer = new QPushButton("Generer !");
-    QPushButton *quitter = new QPushButton("Quitter");
+    m_generer = new QPushButton("&Generer !");
+    m_quitter = new QPushButton("&Quitter");
 
     QHBoxLayout *layout4 = new QHBoxLayout;
-    layout4->addWidget(generer,0,Qt::AlignRight);
-    layout4->addWidget(quitter,0,Qt::AlignJustify);
+    layout4->setAlignment(Qt::AlignRight); //vers la droite
+    layout4->addWidget(m_generer);
+    layout4->addWidget(m_quitter);
+
+    //Layout principal
 
     QVBoxLayout *layoutPrincipal = new QVBoxLayout;
     layoutPrincipal->addWidget(groupbox1);
     layoutPrincipal->addWidget(groupbox2);
-    layoutPrincipal->addWidget(groupbox3);
+    layoutPrincipal->addWidget(m_com);
     layoutPrincipal->addLayout(layout4);
 
     setLayout(layoutPrincipal);
+    setWindowTitle("Zero Class Generator");
 
-    QObject::connect(quitter,SIGNAL(clicked()),qApp,SLOT(quit()));
+    QObject::connect(m_quitter,SIGNAL(clicked()),qApp,SLOT(quit()));
 
 
 
  }
 
-void MaFenetre::ouvrirDialogue()
+/*void MaFenetre::ouvrirDialogue()
 {
     // bool ok = false;
     QString file = QFileDialog::getSaveFileName(this,"Sauver",QString(),"Images (*.png)");
     QMessageBox::information(this,"Fichier","Vous avez sélectionné :\n" + file);
-    /*if (ok)
+    if (ok)
 
         {
             QMessageBox::information(this, "Nouvelle police", "La police est maintenant " + police.toString());
@@ -89,8 +99,9 @@ void MaFenetre::ouvrirDialogue()
         }
     QPalette palette; // creation d'une palette de couleur
     palette.setColor(QPalette::ButtonText,couleur);
-    m_bouton->setPalette(palette); */
+    m_bouton->setPalette(palette);
 
 
 }
+*/
 

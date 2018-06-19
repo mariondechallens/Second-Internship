@@ -1,6 +1,6 @@
 #include <QApplication>
 #include <QtWidgets>
-#include "mafenetre.h"
+#include "MaFenetre.h"
 #include "code.h"
 
 using namespace std;

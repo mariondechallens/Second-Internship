@@ -1,9 +1,7 @@
 #ifndef MAFENETRE_H
 #define MAFENETRE_H
 
-#include <QApplication>
 #include <QtWidgets>
-#include <string>
 
 class MaFenetre : public QWidget // On hérite de QWidget (IMPORTANT)
 {
@@ -13,7 +11,7 @@ class MaFenetre : public QWidget // On hérite de QWidget (IMPORTANT)
     MaFenetre();
 
     public slots:
-    void ouvrirDialogue();
+    //void ouvrirDialogue();
 
     private:
     QLineEdit *m_nom;
@@ -24,7 +22,9 @@ class MaFenetre : public QWidget // On hérite de QWidget (IMPORTANT)
     QCheckBox *m_header;
     QCheckBox *m_const;
     QCheckBox *m_destr;
-
+    QPushButton *m_generer;
+    QPushButton *m_quitter;
+    QGroupBox *m_com;
 
 };
 

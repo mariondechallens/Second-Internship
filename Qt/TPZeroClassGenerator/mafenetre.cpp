@@ -23,9 +23,7 @@ MaFenetre::MaFenetre() : QWidget()  //constructeur
     // Options
 
     m_header = new QCheckBox("Proteger le &header contre les inclusions multiples");
-    m_header->setChecked(true);
     m_const = new QCheckBox("Generer un &constructeur par defaut");
-    m_const->setChecked(true);
     m_destr = new QCheckBox("Generer un &destructeur");
 
     QVBoxLayout *layout2 = new QVBoxLayout;
@@ -33,24 +31,22 @@ MaFenetre::MaFenetre() : QWidget()  //constructeur
     layout2->addWidget(m_const);
     layout2->addWidget(m_destr);
 
+
     QGroupBox *groupbox2 = new QGroupBox("Options");
     groupbox2->setLayout(layout2);
 
     // Commentaires
 
     m_auteur = new QLineEdit;
-    m_licence = new QLineEdit;
     m_date = new QDateEdit;
     m_texte = new QTextEdit;
 
-    m_licence->setText("GPL");
     m_auteur->setText("Marion");
     m_texte->setText("Gere un personnage de type Demon");
 
     QFormLayout *layout3 = new QFormLayout;
     layout3->addRow("&Auteur",m_auteur);
     layout3->addRow("Da&te de creation",m_date);
-    layout3->addRow("&Licence",m_licence);
     layout3->addRow("&Role de la classe", m_texte);
 
     m_com = new QGroupBox("Ajouter des commentaires");
@@ -81,7 +77,7 @@ MaFenetre::MaFenetre() : QWidget()  //constructeur
 
     QObject::connect(m_quitter,SIGNAL(clicked()),qApp,SLOT(quit()));
     QObject::connect(m_generer,SIGNAL(clicked()),this,SLOT(genererCode()));
-    QObject::connect(m_nom,SIGNAL(textChanged(QString)),this,SLOT(afficherHeader()));
+    QObject::connect(m_header,SIGNAL(clicked()),this,SLOT(afficherHeader()));
 
 
 
@@ -89,18 +85,17 @@ MaFenetre::MaFenetre() : QWidget()  //constructeur
 
 void MaFenetre::afficherHeader()
 {
-    if (m_header->isChecked())
-    {
+
         QDialog header;
         QString text;
         text += "HEADER_" + m_nom->text().toUpper();
         QLineEdit ligne(&header);
         ligne.setText(text);
+        ligne.setReadOnly(true);
         header.resize(300,100);
         header.setWindowTitle("Texte du header");
         header.exec();
 
-    }
 
 }
 
@@ -118,7 +113,7 @@ void MaFenetre::genererCode()
         {
             code += "/*\nAuteur : " + m_auteur->text() + "\n";
             code += "Date de création : " + m_date->date().toString() + "\n\n";
-            code += "Licence : " + m_licence->text() + "\n\n";
+            //code += "Licence : " + m_licence->text() + "\n\n";
             code += "Rôle :\n" + m_texte->toPlainText() + "\n*/\n\n\n";
         }
 

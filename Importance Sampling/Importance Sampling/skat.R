@@ -103,12 +103,13 @@ w<-Get_Logistic_Weights(SKAT.example$Z, par1=0.07, par2=150)
 W<-diag(w)
 K<-SKAT.example$Z%*%W%*%W%*%t(SKAT.example$Z)
 DIST<-k2dM(K,direction = "k2d",method="exp",scale = 2) #theta = 1/scale
+nRes<-500
 
 ######simuler Y sous Ho et estimer fonction de repartition de QSKAT
 ####en binaire
-tobs<- seq(0, 10, by=0.01)
-pvalueskatB<-rep(0,length(tobs))
-obj1<-SKAT_Null_Model(SKAT.example$y.b ~ 1, out_type="D")
+tobsB<- seq(100, 1500, by=1)
+pvalueskatB<-rep(0,length(tobsB))
+obj1<-SKAT_Null_Model(SKAT.example$y.b ~ 1, out_type="D",n.Resampling = nRes)
 
 #package -> combili de Chi2
 skat1<-SKAT(SKAT.example$Z,obj1,weights=w)$p.value
@@ -116,90 +117,85 @@ skat1<-SKAT(SKAT.example$Z,obj1,weights=w)$p.value
 #Importance sampling
 
 z <- SKAT.example$y.b
+zobs <- t((z - mean(z))) %*% K %*% (z -mean(z))
 L0 <- c(rep(1L,sqrt(length(DIST))/2),rep(2L,sqrt(length(DIST))/2))
 
 L <- L0; L[1] <- L[1] + 0L # force copie
-k <- c(sqrt(length(DIST))/2, sqrt(length(DIST))/2)
 
+k <- c( sum(z==0), sum(z==1) )
+meanL <- mean(L)
 B <- 1000
 w <- numeric(B)
 t.perm <- numeric(B)
 for(n in 1:B) {
-  w[n] <- IS(k, DIST, L, 0.5); 
-  t.perm[n] <- t_test(z , L)
+  w[n] <- IS(k, DIST, L, 1); 
+  t.perm[n] <- (L - meanL) %*% K %*% (L -meanL)
 }
 
 #On modifie les poids pour que la somme fasse 1 :
 w <- w / sum(w)
 
-for (j in 1:length(tobs))
+for (j in 1:length(tobsB))
 {
-  pvalueskatB[j]<-sum( w*(t.perm  > tobs[j]) )
+  pvalueskatB[j]<-sum( w*(t.perm  > tobsB[j]) )
 }
 
-plot(tobs,log10(pvalueskatB),col="blue",type="l")
+plot(tobsB,log10(pvalueskatB),col="blue",type="l",main = "Binaire")
+
 
 #####loi normale (0,sigma2*In)
-obj2<-SKAT_Null_Model(SKAT.example$y.c ~ 1, out_type="C")
-pvalueskatC<-rep(0,length(tobs))
-pgaston<-rep(0,length(tobs))
+tobsC<- seq(1e5, 3e5, by=100)
+obj2<-SKAT_Null_Model(SKAT.example$y.c ~ 1, out_type="C",n.Resampling = nRes)
+pvalueskatC<-rep(0,length(tobsC))
+pgaston<-rep(0,length(tobsC))
 
 #package -> combili de Chi2
-lambda <- eigen(DIST)$values
+lambda <- eigen(K)$values
 
 skat2<-SKAT(SKAT.example$Z,obj2,weights=w)$p.value
 
 
 #Importance sampling
-z <- SKAT.example$y.c
-L0 <- c(rep(1L,sqrt(length(DIST))/2),rep(2L,sqrt(length(DIST))/2))
+z <- as.vector(SKAT.example$y.c)
+L0 <- c(rep(1L,sqrt(length(DIST))/5),rep(2L,sqrt(length(DIST))/5),rep(3L,sqrt(length(DIST))/5),rep(4L,sqrt(length(DIST))/5),rep(5L,sqrt(length(DIST))/5))
 
 L <- L0; L[1] <- L[1] + 0L # force copie
-k <- c(sqrt(length(DIST))/2, sqrt(length(DIST))/2)
+k <- c(sqrt(length(DIST))/5, sqrt(length(DIST))/5,sqrt(length(DIST))/5,sqrt(length(DIST))/5,sqrt(length(DIST))/5)
 
 B <- 1000
 w <- numeric(B)
 t.perm <- numeric(B)
 for(n in 1:B) {
-  w[n] <- IS(k, DIST, L, 0.5); 
-  t.perm[n] <- t_test(z , L)
+  w[n] <- IS(k, DIST, L, 1); 
+  t.perm[n] <-  (L - meanL) %*% K %*% (L -meanL) # t_test(z , L)
 }
 
 #On modifie les poids pour que la somme fasse 1 :
 w <- w / sum(w)
 
-for (j in 1:length(tobs))
+for (j in 1:length(tobsC))
 {
-  pvalueskatC[j]<-sum( w*(t.perm  > tobs[j]) )
-  pgaston[j]<-gaston:::davies(tobs[j], lambda, h = rep(1, length(lambda)),
+  pvalueskatC[j]<-sum( w*(t.perm  > tobsC[j]) )
+  pgaston[j]<-gaston:::davies(tobsC[j], lambda[1:59], h = rep(1, length(lambda)),
                      delta = rep(0, length(lambda)), sigma = 0, lim = 10000,
                      acc = 1e-04) 
 }
 
-plot(tobs,log10(pvalueskatB),col="blue",type="l")
-lines(tobs,log10(pvalueskatC),col="black",type='l')
-lines(tobs,log10(pgaston),col="forestgreen",type="l")
+
+plot(tobsC,log10(pvalueskatC),col="black",type='l',main = "Continu")
+lines(tobsC,log10(pgaston),col="forestgreen",type="l")
 legend("topright",legend = c("Y binaire IS", "Y continue IS","Y continue gaston"), fill = c("blue","black","forestgreen"))
-
-plot(tobs,pvalueskatB,col="blue",type="l")
-lines(tobs,pvalueskatC,col="black",type='l')
-lines(tobs,pgaston,col="forestgreen",type="l")
-legend("topright",legend = c("Y binaire IS", "Y continue IS","Y continue gaston"), fill = c("blue","black","forestgreen"))
-
-
-print(paste0("Pvalue SKAt binaire = ",1-skat1)) #p(z>tobs) ?
-print(paste0("Pvalue SKAt continu = ", 1-skat2))
 
 pvalL<-SKAT:::SKAT_Optimal_Linear(res = obj2$res,Z = SKAT.example$Z,
                                   X1 = obj2$X1,kernel=K,weights = w,
                                   s2 = obj2$s2, method = "davies", 
-                                  res.out = obj2$res.out,n.Resampling = obj2$n.Resampling,  r.all = 0)$p.value
+                                  res.out = obj2$res.out,n.Resampling = nRes,  r.all = 0)
 pvalB<-SKAT:::SKAT_Optimal_Logistic(res = obj1$res,Z = SKAT.example$Z,
                                     X1 = obj1$X1,kernel=K,weights = w,
                                     pi_1 = obj1$pi_1, method = "davies", 
-                                    res.out = obj1$res.out,n.Resampling = obj1$n.Resampling,  r.all = 0)$p.value
+                                    res.out = obj1$res.out,n.Resampling = nRes,  r.all = 0)
 
                            
-                           
-                           
-                           
+plot(pvalL$p.value.resampling,type='l',col="blue", main =  paste0("Resampling pvalue ", nRes, " times."))                           
+lines(pvalB$p.value.resampling,type='l')                           
+legend("topleft",legend=c("Resampling skat Linear", "Resampling skat Binaire"), fill = c("blue","black"))                           

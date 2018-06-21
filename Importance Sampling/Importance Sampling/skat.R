@@ -144,19 +144,20 @@ plot(tobsB,log10(pvalueskatB),col="blue",type="l",main = "Binaire")
 
 
 #####loi normale (0,sigma2*In)
-tobsC<- seq(1e5, 3e5, by=100)
+tobsC<- seq(1e5, 3e5, by=150)
 obj2<-SKAT_Null_Model(SKAT.example$y.c ~ 1, out_type="C",n.Resampling = nRes)
 pvalueskatC<-rep(0,length(tobsC))
-pgaston<-rep(0,length(tobsC))
+
 
 #package -> combili de Chi2
-lambda <- eigen(K)$values
+lambda <- eigen(K)$values[1:59]
 
 skat2<-SKAT(SKAT.example$Z,obj2,weights=w)$p.value
 
 
 #Importance sampling
 z <- as.vector(SKAT.example$y.c)
+zobs <- t((z - mean(z))) %*% K %*% (z -mean(z))
 L0 <- c(rep(1L,sqrt(length(DIST))/5),rep(2L,sqrt(length(DIST))/5),rep(3L,sqrt(length(DIST))/5),rep(4L,sqrt(length(DIST))/5),rep(5L,sqrt(length(DIST))/5))
 
 L <- L0; L[1] <- L[1] + 0L # force copie
@@ -176,26 +177,34 @@ w <- w / sum(w)
 for (j in 1:length(tobsC))
 {
   pvalueskatC[j]<-sum( w*(t.perm  > tobsC[j]) )
-  pgaston[j]<-gaston:::davies(tobsC[j], lambda[1:59], h = rep(1, length(lambda)),
+}
+
+tobsG<-seq(1000,7000,by=5)
+pgaston<-rep(0,length(tobsG))
+for (j in 1:length(tobsG))
+{
+  pgaston[j]<-gaston:::davies(tobsG[j], lambda, h = rep(1, length(lambda)),
                      delta = rep(0, length(lambda)), sigma = 0, lim = 10000,
                      acc = 1e-04) 
 }
 
 
 plot(tobsC,log10(pvalueskatC),col="black",type='l',main = "Continu")
-lines(tobsC,log10(pgaston),col="forestgreen",type="l")
-legend("topright",legend = c("Y binaire IS", "Y continue IS","Y continue gaston"), fill = c("blue","black","forestgreen"))
+plot(tobsG,log10(pgaston),col="forestgreen",type="l",main="Continue Gaston")
 
-pvalL<-SKAT:::SKAT_Optimal_Linear(res = obj2$res,Z = SKAT.example$Z,
-                                  X1 = obj2$X1,kernel=K,weights = w,
-                                  s2 = obj2$s2, method = "davies", 
-                                  res.out = obj2$res.out,n.Resampling = nRes,  r.all = 0)
-pvalB<-SKAT:::SKAT_Optimal_Logistic(res = obj1$res,Z = SKAT.example$Z,
-                                    X1 = obj1$X1,kernel=K,weights = w,
-                                    pi_1 = obj1$pi_1, method = "davies", 
-                                    res.out = obj1$res.out,n.Resampling = nRes,  r.all = 0)
 
-                           
-plot(pvalL$p.value.resampling,type='l',col="blue", main =  paste0("Resampling pvalue ", nRes, " times."))                           
-lines(pvalB$p.value.resampling,type='l')                           
-legend("topleft",legend=c("Resampling skat Linear", "Resampling skat Binaire"), fill = c("blue","black"))                           
+
+
+# pvalL<-SKAT:::SKAT_Optimal_Linear(res = obj2$res,Z = SKAT.example$Z,
+#                                   X1 = obj2$X1,kernel=K,weights = w,
+#                                   s2 = obj2$s2, method = "davies", 
+#                                   res.out = obj2$res.out,n.Resampling = nRes,  r.all = 0)
+# pvalB<-SKAT:::SKAT_Optimal_Logistic(res = obj1$res,Z = SKAT.example$Z,
+#                                     X1 = obj1$X1,kernel=K,weights = w,
+#                                     pi_1 = obj1$pi_1, method = "davies", 
+#                                     res.out = obj1$res.out,n.Resampling = nRes,  r.all = 0)
+# 
+#                            
+# plot(pvalL$p.value.resampling,type='l',col="blue", main =  paste0("Resampling pvalue ", nRes, " times."))                           
+# lines(pvalB$p.value.resampling,type='l')                           
+# legend("topleft",legend=c("Resampling skat Linear", "Resampling skat Binaire"), fill = c("blue","black"))                           

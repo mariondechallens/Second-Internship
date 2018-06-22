@@ -107,7 +107,7 @@ nRes<-500
 
 ######simuler Y sous Ho et estimer fonction de repartition de QSKAT
 ####en binaire
-tobsB<- seq(100, 1500, by=1)
+tobsB<- seq(800, 1600, by=0.1)
 pvalueskatB<-rep(0,length(tobsB))
 obj1<-SKAT_Null_Model(SKAT.example$y.b ~ 1, out_type="D",n.Resampling = nRes)
 
@@ -129,7 +129,7 @@ w <- numeric(B)
 t.perm <- numeric(B)
 for(n in 1:B) {
   w[n] <- IS(k, DIST, L, 1); 
-  t.perm[n] <- (L - meanL) %*% K %*% (L -meanL)
+  t.perm[n] <- (L - mean(L)) %*% K %*% (L -mean(L))
 }
 
 #On modifie les poids pour que la somme fasse 1 :
@@ -144,10 +144,24 @@ plot(tobsB,log10(pvalueskatB),col="blue",type="l",main = "Binaire")
 
 
 #####loi normale (0,sigma2*In)
-tobsC<- seq(1e5, 3e5, by=150)
+tobsC<- seq(3000,5500,by=0.1)
 obj2<-SKAT_Null_Model(SKAT.example$y.c ~ 1, out_type="C",n.Resampling = nRes)
 pvalueskatC<-rep(0,length(tobsC))
 
+resamp <- function(L,y)
+{
+  nLab<-length(y)
+  if (nLab > 0)
+  {
+    yR<-L
+    for (l in 1:nLab)
+    {
+      yR[yR == l] <- sample(y[[l]],length(y[[l]]))
+    }
+    return (yR)
+  }
+  return(0)
+}
 
 #package -> combili de Chi2
 lambda <- eigen(K)$values[1:59]
@@ -156,20 +170,30 @@ skat2<-SKAT(SKAT.example$Z,obj2,weights=w)$p.value
 
 
 #Importance sampling
+ng<-sqrt(length(DIST))/5
+
 z <- as.vector(SKAT.example$y.c)
+zsort <- list(z1 = sort(z)[1:ng], z2 = sort(z)[(ng+1):(2*ng)], z3 = sort(z)[(2*ng+1) : (3*ng)], z4 =sort(z)[(3*ng +1) : (4*ng)], z5 = sort(z) [(4*ng+1) : (5*ng)])
+
+
 zobs <- t((z - mean(z))) %*% K %*% (z -mean(z))
 L0 <- c(rep(1L,sqrt(length(DIST))/5),rep(2L,sqrt(length(DIST))/5),rep(3L,sqrt(length(DIST))/5),rep(4L,sqrt(length(DIST))/5),rep(5L,sqrt(length(DIST))/5))
+
 
 L <- L0; L[1] <- L[1] + 0L # force copie
 k <- c(sqrt(length(DIST))/5, sqrt(length(DIST))/5,sqrt(length(DIST))/5,sqrt(length(DIST))/5,sqrt(length(DIST))/5)
 
+
+meanL <- mean(L)
 B <- 1000
 w <- numeric(B)
 t.perm <- numeric(B)
 for(n in 1:B) {
-  w[n] <- IS(k, DIST, L, 1); 
-  t.perm[n] <-  (L - meanL) %*% K %*% (L -meanL) # t_test(z , L)
+ w[n] <- IS(k, DIST, L, 1);
+ y<-resamp(L,zsort)
+ t.perm[n] <-  (y - mean(y)) %*% K %*% (y -mean(y)) # t_test(z , L)
 }
+
 
 #On modifie les poids pour que la somme fasse 1 :
 w <- w / sum(w)
@@ -178,19 +202,21 @@ for (j in 1:length(tobsC))
 {
   pvalueskatC[j]<-sum( w*(t.perm  > tobsC[j]) )
 }
+plot(tobsC,log10(pvalueskatC),col="black",type='l',main = "Continu")
 
-tobsG<-seq(1000,7000,by=5)
-pgaston<-rep(0,length(tobsG))
-for (j in 1:length(tobsG))
+
+pgaston<-rep(0,length(tobsC))
+for (j in 1:length(tobsC))
 {
-  pgaston[j]<-gaston:::davies(tobsG[j], lambda, h = rep(1, length(lambda)),
+  pgaston[j]<-gaston:::davies(tobsC[j], lambda, h = rep(1, length(lambda)),
                      delta = rep(0, length(lambda)), sigma = 0, lim = 10000,
                      acc = 1e-04) 
 }
 
 
-plot(tobsC,log10(pvalueskatC),col="black",type='l',main = "Continu")
-plot(tobsG,log10(pgaston),col="forestgreen",type="l",main="Continue Gaston")
+
+lines(tobsC,log10(pgaston),col="forestgreen",type="l")
+legend("topright",legend=c("IS", "RGaston"), fill = c("black","forestgreen"))
 
 
 

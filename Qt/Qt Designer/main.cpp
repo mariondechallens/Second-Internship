@@ -1,7 +1,7 @@
 #include <QApplication>
 #include <QtWidgets>
 #include "FenCalculatrice.h"
-#include <iostream>
+
 
 using namespace std;
 

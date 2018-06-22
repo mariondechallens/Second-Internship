@@ -57,9 +57,10 @@ MaFenetre::MaFenetre()  //constructeur
     outils->addWidget(justif);
 
     //Barre d'etat
-    QStatusBar *etat = new QStatusBar;
+    QStatusBar *etat = new QStatusBar();
     QLineEdit *recherche = new QLineEdit("&Rechercher");
     etat->addWidget(recherche);
+    setStatusBar(etat);
 
 }
 

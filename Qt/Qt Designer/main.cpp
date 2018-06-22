@@ -1,6 +1,8 @@
 #include <QApplication>
 #include <QtWidgets>
+#include <QtWebKitWidgets>
 #include "FenCalculatrice.h"
+
 
 
 using namespace std;

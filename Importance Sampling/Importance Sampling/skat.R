@@ -124,12 +124,11 @@ L <- L0; L[1] <- L[1] + 0L # force copie
 
 k <- c( sum(z==0), sum(z==1) )
 meanL <- mean(L)
-B <- 10000
+B <- 1e5
 w <- numeric(B)
 t.perm <- numeric(B)
 for(n in 1:B) {
-  w[n] <- IS(k, DIST, L, 1); 
-  print(mean(L))
+  w[n] <- IS(k, DIST, L, 1)
   t.perm[n] <-(L - meanL) %*% K %*% (L -meanL) 
 }
 
@@ -174,6 +173,7 @@ skat2<-SKAT(SKAT.example$Z,obj2,weights=w)$p.value
 ng<-sqrt(length(DIST))/5
 
 z <- as.vector(SKAT.example$y.c)
+varZ<-var(z)
 zsort <- list(z1 = sort(z)[1:ng], z2 = sort(z)[(ng+1):(2*ng)], z3 = sort(z)[(2*ng+1) : (3*ng)], z4 =sort(z)[(3*ng +1) : (4*ng)], z5 = sort(z) [(4*ng+1) : (5*ng)])
 
 
@@ -185,14 +185,14 @@ L <- L0; L[1] <- L[1] + 0L # force copie
 k <- c(sqrt(length(DIST))/5, sqrt(length(DIST))/5,sqrt(length(DIST))/5,sqrt(length(DIST))/5,sqrt(length(DIST))/5)
 
 
-B <- 10000
+B <- 1e5
 w <- numeric(B)
 t.perm <- numeric(B)
 meanZ<-mean(z)
 for(n in 1:B) {
  w[n] <- IS(k, DIST, L, 1);
  y<-resamp(L,zsort)
- t.perm[n] <-  (y - meanZ) %*% K %*% (y -meanZ) # t_test(z , L)
+ t.perm[n] <-  (y - meanZ) %*% K %*% (y -meanZ)/varZ
 }
 
 
@@ -209,9 +209,7 @@ plot(tobsC,log10(pvalueskatC),col="black",type='l',main = "Continu")
 pgaston<-rep(0,length(tobsC))
 for (j in 1:length(tobsC))
 {
-  pgaston[j]<-gaston:::davies(tobsC[j], lambda, h = rep(1, length(lambda)),
-                     delta = rep(0, length(lambda)), sigma = 0, lim = 10000,
-                     acc = 1e-04) 
+  pgaston[j]<-gaston:::davies(tobsC[j], lambda/varZ, acc = 1e-08) 
 }
 
 
@@ -222,14 +220,14 @@ lines(tobsC,log10(pgaston),col="forestgreen",type="l")
 #normal sampling
 pnormSamp<-rep(0,length(tobsC))
 
-B <- 10000
+B <- 1e6
 w <- numeric(B)
 t.perm <- numeric(B)
 meanZ<-mean(z)
 for(n in 1:B) {
-  w[n] <- 1;
+  w[n] <- 1
   y<-sample(z)
-  t.perm[n] <-  (y - meanZ) %*% K %*% (y -meanZ) # t_test(z , L)
+  t.perm[n] <-  (y - meanZ) %*% K %*% (y -meanZ)/varZ
 }
 
 

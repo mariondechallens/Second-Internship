@@ -124,12 +124,13 @@ L <- L0; L[1] <- L[1] + 0L # force copie
 
 k <- c( sum(z==0), sum(z==1) )
 meanL <- mean(L)
-B <- 1000
+B <- 10000
 w <- numeric(B)
 t.perm <- numeric(B)
 for(n in 1:B) {
   w[n] <- IS(k, DIST, L, 1); 
-  t.perm[n] <- (L - mean(L)) %*% K %*% (L -mean(L))
+  print(mean(L))
+  t.perm[n] <-(L - meanL) %*% K %*% (L -meanL) 
 }
 
 #On modifie les poids pour que la somme fasse 1 :
@@ -148,7 +149,7 @@ tobsC<- seq(3000,5500,by=0.1)
 obj2<-SKAT_Null_Model(SKAT.example$y.c ~ 1, out_type="C",n.Resampling = nRes)
 pvalueskatC<-rep(0,length(tobsC))
 
-resamp <- function(L,y)
+resamp <- function(L,y) # y liste de listes, L liste de labels
 {
   nLab<-length(y)
   if (nLab > 0)
@@ -184,14 +185,14 @@ L <- L0; L[1] <- L[1] + 0L # force copie
 k <- c(sqrt(length(DIST))/5, sqrt(length(DIST))/5,sqrt(length(DIST))/5,sqrt(length(DIST))/5,sqrt(length(DIST))/5)
 
 
-meanL <- mean(L)
-B <- 1000
+B <- 10000
 w <- numeric(B)
 t.perm <- numeric(B)
+meanZ<-mean(z)
 for(n in 1:B) {
  w[n] <- IS(k, DIST, L, 1);
  y<-resamp(L,zsort)
- t.perm[n] <-  (y - mean(y)) %*% K %*% (y -mean(y)) # t_test(z , L)
+ t.perm[n] <-  (y - meanZ) %*% K %*% (y -meanZ) # t_test(z , L)
 }
 
 
@@ -216,8 +217,31 @@ for (j in 1:length(tobsC))
 
 
 lines(tobsC,log10(pgaston),col="forestgreen",type="l")
-legend("topright",legend=c("IS", "RGaston"), fill = c("black","forestgreen"))
 
+
+#normal sampling
+pnormSamp<-rep(0,length(tobsC))
+
+B <- 10000
+w <- numeric(B)
+t.perm <- numeric(B)
+meanZ<-mean(z)
+for(n in 1:B) {
+  w[n] <- 1;
+  y<-sample(z)
+  t.perm[n] <-  (y - meanZ) %*% K %*% (y -meanZ) # t_test(z , L)
+}
+
+
+#On modifie les poids pour que la somme fasse 1 :
+w <- w / sum(w)
+
+for (j in 1:length(tobsC))
+{
+  pnormSamp[j]<-sum( w*(t.perm  > tobsC[j]) )
+}
+lines(tobsC,log10(pnormSamp),col="brown",type='l',main = "Continu")
+legend("topright",legend=c("IS", "RGaston","Sampling"), fill = c("black","forestgreen","brown"))
 
 
 

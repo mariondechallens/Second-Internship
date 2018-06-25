@@ -177,7 +177,7 @@ varZ<-var(z)
 zsort <- list(z1 = sort(z)[1:ng], z2 = sort(z)[(ng+1):(2*ng)], z3 = sort(z)[(2*ng+1) : (3*ng)], z4 =sort(z)[(3*ng +1) : (4*ng)], z5 = sort(z) [(4*ng+1) : (5*ng)])
 
 
-zobs <- t((z - mean(z))) %*% K %*% (z -mean(z))
+zobs <- t(z - mean(z)) %*% K %*% (z -mean(z))
 L0 <- c(rep(1L,sqrt(length(DIST))/5),rep(2L,sqrt(length(DIST))/5),rep(3L,sqrt(length(DIST))/5),rep(4L,sqrt(length(DIST))/5),rep(5L,sqrt(length(DIST))/5))
 
 
@@ -205,11 +205,32 @@ for (j in 1:length(tobsC))
 }
 plot(tobsC,log10(pvalueskatC),col="black",type='l',main = "Continu")
 
+# importance sampling (avec theta qui augmente à chaque itération)
+pIStheta<-rep(0,length(tobsC))
+#DIST <- outer(x, x, function(a,b) abs(a-b) )
+L <- integer(sqrt(length(DIST))/2)
+B <- 10000
+w <- numeric(B)
+perm <- numeric(B)
+theta <- seq(0,2.5,length=B)
+y1 <- sort(z[sqrt(length(DIST))/2:length(z)])
+for(i in 1:B) {
+  w[i] <- IS_c(DIST, L, theta[i])
+  perm[i] <- cor(x, y1[L])
+}
 
+for (j in 1:length(tobsC))
+{
+  pIStheta[j]<- sum( w*(abs(perm) > abs(obs)) )/sum(w) 
+}
+
+lines(tobsC,log10(pIStheta),col="red",type="l")
+
+### package Gaston
 pgaston<-rep(0,length(tobsC))
 for (j in 1:length(tobsC))
 {
-  pgaston[j]<-gaston:::davies(tobsC[j], lambda/varZ, acc = 1e-08) 
+  pgaston[j]<-gaston:::davies(tobsC[j], lambda, acc = 1e-08) 
 }
 
 
@@ -239,7 +260,7 @@ for (j in 1:length(tobsC))
   pnormSamp[j]<-sum( w*(t.perm  > tobsC[j]) )
 }
 lines(tobsC,log10(pnormSamp),col="brown",type='l',main = "Continu")
-legend("topright",legend=c("IS", "RGaston","Sampling"), fill = c("black","forestgreen","brown"))
+legend("topright",legend=c("IS", "IS 2", "RGaston","Sampling"), fill = c("black","red","forestgreen","brown"))
 
 
 

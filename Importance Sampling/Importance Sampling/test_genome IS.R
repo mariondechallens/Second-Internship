@@ -128,7 +128,8 @@ z <- c(x,y)
 
 # la matrice de distances entre tous les elts de z
 DIST <- outer(z, z, function(a,b) abs(a-b) )
-K<-k2dM(DIST,direction="d2k",method = "exp",scale = 1)
+K<-k2dM(DIST,direction="d2k",method = "exp",scale = 2)
+#K<-k2dM(DIST,direction="d2k",method = "DC")
 
 lambda <- eigen(K)$values[1:6]
 
@@ -166,10 +167,9 @@ for (j in 1:length(tobsC))
 }
 plot(tobsC,log10(result$IS),col="black",type='l',main = "Continu")
 
-
 for (j in 1:length(tobsC))
 {
-  result$Gaston[j]<-gaston:::davies(tobsC[j], lambda/varZ, acc = 1e-05) 
+  result$Gaston[j]<-gaston:::davies(tobsC[j], lambda, acc = 1e-08) 
 }
 
 lines(tobsC,log10(result$Gaston),col="forestgreen",type="l")

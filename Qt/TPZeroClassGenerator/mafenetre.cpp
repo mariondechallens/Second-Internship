@@ -1,157 +1,276 @@
 #include "MaFenetre.h"
-#include "code.h"
+#include <QtWebKitWidgets>
 
 using namespace std;
 
 
-MaFenetre::MaFenetre() : QWidget()  //constructeur
+MaFenetre::MaFenetre()
 {
-    // Def de la classe
+    // Génération des widgets de la fenêtre principale
+    creerActions();
+    creerMenus();
+    creerBarresOutils();
+    creerBarreEtat();
 
-    m_nom = new QLineEdit;
-    m_classeMere = new QLineEdit;
-    m_nom->setText("Demoniste");
-    m_classeMere->setText("Personnage");
+    // Génération des onglets et chargement de la page d'accueil
+    onglets = new QTabWidget;
+    onglets->addTab(creerOngletPageWeb(tr("http://www.siteduzero.com")), tr("(Nouvelle page)"));
+    connect(onglets, SIGNAL(currentChanged(int)), this, SLOT(changementOnglet(int)));
+    setCentralWidget(onglets);
 
-    QFormLayout *layout1 = new QFormLayout;
-    layout1->addRow("&Nom",m_nom);
-    layout1->addRow("Classe &mere",m_classeMere);
-
-    QGroupBox *groupbox1 = new QGroupBox("Definition de la classe");
-    groupbox1->setLayout(layout1);
-
-    // Options
-
-    m_header = new QCheckBox("Proteger le &header contre les inclusions multiples");
-    m_const = new QCheckBox("Generer un &constructeur par defaut");
-    m_destr = new QCheckBox("Generer un &destructeur");
-
-    QVBoxLayout *layout2 = new QVBoxLayout;
-    layout2->addWidget(m_header);
-    layout2->addWidget(m_const);
-    layout2->addWidget(m_destr);
-
-
-    QGroupBox *groupbox2 = new QGroupBox("Options");
-    groupbox2->setLayout(layout2);
-
-    // Commentaires
-
-    m_auteur = new QLineEdit;
-    m_date = new QDateEdit;
-    m_texte = new QTextEdit;
-
-    m_auteur->setText("Marion");
-    m_texte->setText("Gere un personnage de type Demon");
-
-    QFormLayout *layout3 = new QFormLayout;
-    layout3->addRow("&Auteur",m_auteur);
-    layout3->addRow("Da&te de creation",m_date);
-    layout3->addRow("&Role de la classe", m_texte);
-
-    m_com = new QGroupBox("Ajouter des commentaires");
-    m_com->setCheckable(true);
-    m_com->setChecked(true);
-    m_com->setLayout(layout3);
-
-
-    // Boutons
-    m_generer = new QPushButton("&Generer !");
-    m_quitter = new QPushButton("&Quitter");
-
-    QHBoxLayout *layout4 = new QHBoxLayout;
-    layout4->setAlignment(Qt::AlignRight); //vers la droite
-    layout4->addWidget(m_generer);
-    layout4->addWidget(m_quitter);
-
-    //Layout principal
-
-    QVBoxLayout *layoutPrincipal = new QVBoxLayout;
-    layoutPrincipal->addWidget(groupbox1);
-    layoutPrincipal->addWidget(groupbox2);
-    layoutPrincipal->addWidget(m_com);
-    layoutPrincipal->addLayout(layout4);
-
-    setLayout(layoutPrincipal);
-    setWindowTitle("Zero Class Generator");
-
-    QObject::connect(m_quitter,SIGNAL(clicked()),qApp,SLOT(quit()));
-    QObject::connect(m_generer,SIGNAL(clicked()),this,SLOT(genererCode()));
-    QObject::connect(m_header,SIGNAL(clicked()),this,SLOT(afficherHeader()));
-
-
-
- }
-
-void MaFenetre::afficherHeader()
-{
-
-        QDialog header;
-        QString text;
-        text += "HEADER_" + m_nom->text().toUpper();
-        QLineEdit ligne(&header);
-        ligne.setText(text);
-        ligne.setReadOnly(true);
-        header.resize(300,100);
-        header.setWindowTitle("Texte du header");
-        header.exec();
-
-
+    // Définition de quelques propriétés de la fenêtre
+    setMinimumSize(500, 350);
+    setWindowIcon(QIcon("web.png"));
+    setWindowTitle(tr("zNavigo"));
 }
 
-void MaFenetre::genererCode()
-{   if (m_nom->text().isEmpty())
+void MaFenetre::creerActions()
+{
+    actionNouvelOnglet = new QAction(tr("&Nouvel onglet"), this);
+    actionNouvelOnglet->setShortcut(tr("Ctrl+T"));
+    connect(actionNouvelOnglet, SIGNAL(triggered()), this, SLOT(nouvelOnglet()));
 
+    actionFermerOnglet = new QAction(tr("&Fermer l'onglet"), this);
+    actionFermerOnglet->setShortcut(tr("Ctrl+W"));
+    connect(actionFermerOnglet, SIGNAL(triggered()), this, SLOT(fermerOnglet()));
+
+    actionQuitter = new QAction(tr("&Quitter"), this);
+    actionQuitter->setShortcut(tr("Ctrl+Q"));
+    connect(actionQuitter, SIGNAL(triggered()), qApp, SLOT(quit()));
+
+    actionPrecedente = new QAction(QIcon("prec.png"), tr("&Precedente"), this);
+    actionPrecedente->setShortcut(QKeySequence::Back);
+    connect(actionPrecedente, SIGNAL(triggered()), this, SLOT(precedente()));
+
+    actionSuivante = new QAction(QIcon("suiv.png"), tr("&Suivante"), this);
+    actionSuivante->setShortcut(QKeySequence::Forward);
+    connect(actionSuivante, SIGNAL(triggered()), this, SLOT(suivante()));
+
+    actionStop = new QAction(QIcon("stop.png"), tr("S&top"), this);
+    connect(actionStop, SIGNAL(triggered()), this, SLOT(stop()));
+
+    actionActualiser = new QAction(QIcon("actu.png"), tr("&Actualiser"), this);
+    actionActualiser->setShortcut(QKeySequence::Refresh);
+    connect(actionActualiser, SIGNAL(triggered()), this, SLOT(actualiser()));
+
+    actionAccueil = new QAction(QIcon("home.png"), tr("A&ccueil"), this);
+    connect(actionAccueil, SIGNAL(triggered()), this, SLOT(accueil()));
+
+    actionGo = new QAction(QIcon("go.png"), tr("A&ller à"), this);
+    connect(actionGo, SIGNAL(triggered()), this, SLOT(chargerPage()));
+
+    actionAPropos = new QAction(tr("&A propos..."), this);
+    connect(actionAPropos, SIGNAL(triggered()), this, SLOT(aPropos()));
+
+    actionAPropos->setShortcut(QKeySequence::HelpContents);
+    actionAProposQt = new QAction(tr("A propos de &Qt..."), this);
+    connect(actionAProposQt, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+}
+
+void MaFenetre::creerMenus()
+{
+    QMenu *menuFichier = menuBar()->addMenu(tr("&Fichier"));
+
+    menuFichier->addAction(actionNouvelOnglet);
+    menuFichier->addAction(actionFermerOnglet);
+    menuFichier->addSeparator();
+    menuFichier->addAction(actionQuitter);
+
+    QMenu *menuNavigation = menuBar()->addMenu(tr("&Navigation"));
+
+    menuNavigation->addAction(actionPrecedente);
+    menuNavigation->addAction(actionSuivante);
+    menuNavigation->addAction(actionStop);
+    menuNavigation->addAction(actionActualiser);
+    menuNavigation->addAction(actionAccueil);
+
+
+    QMenu *menuAide = menuBar()->addMenu(tr("&?"));
+
+    menuAide->addAction(actionAPropos);
+    menuAide->addAction(actionAProposQt);
+}
+
+void MaFenetre::creerBarresOutils()
+{
+    champAdresse = new QLineEdit;
+    connect(champAdresse, SIGNAL(returnPressed()), this, SLOT(chargerPage()));
+
+    QToolBar *toolBarNavigation = addToolBar(tr("Navigation"));
+
+    toolBarNavigation->addAction(actionPrecedente);
+    toolBarNavigation->addAction(actionSuivante);
+    toolBarNavigation->addAction(actionStop);
+    toolBarNavigation->addAction(actionActualiser);
+    toolBarNavigation->addAction(actionAccueil);
+    toolBarNavigation->addWidget(champAdresse);
+    toolBarNavigation->addAction(actionGo);
+}
+
+void MaFenetre::creerBarreEtat()
+{
+    progression = new QProgressBar(this);
+    progression->setVisible(false);
+    progression->setMaximumHeight(14);
+    statusBar()->addWidget(progression, 1);
+}
+
+
+
+// Slots
+
+void MaFenetre::precedente()
+{
+    pageActuelle()->back();
+}
+
+void MaFenetre::suivante()
+{
+    pageActuelle()->forward();
+}
+
+void MaFenetre::accueil()
+{
+    pageActuelle()->load(QUrl(tr("http://www.siteduzero.com")));
+}
+
+void MaFenetre::stop()
+{
+    pageActuelle()->stop();
+}
+
+void MaFenetre::actualiser()
+{
+    pageActuelle()->reload();
+}
+
+
+void MaFenetre::aPropos()
+{
+    QMessageBox::information(this, tr("A propos..."), tr("zNavigo est un projet réalisé pour illustrer les tutoriels C++ du <a href=\"http://www.siteduzero.com\">Site du Zéro</a>.<br />Les images de ce programme ont été créées par <a href=\"http://www.everaldo.com\">Everaldo Coelho</a>"));
+}
+
+void MaFenetre::nouvelOnglet()
+{
+    int indexNouvelOnglet = onglets->addTab(creerOngletPageWeb(), tr("(Nouvelle page)"));
+    onglets->setCurrentIndex(indexNouvelOnglet);
+
+    champAdresse->setText("");
+    champAdresse->setFocus(Qt::OtherFocusReason);
+}
+
+void MaFenetre::fermerOnglet()
+{
+    // On ne doit pas fermer le dernier onglet, sinon le QTabWidget ne marche plus
+    if (onglets->count() > 1)
     {
-        QMessageBox::critical(this, "Erreur", "Veuillez entrer au moins un nom de classe");
-        return; // Arrêt de la méthode
+        onglets->removeTab(onglets->currentIndex());
     }
-    // Si tout va bien, on génère le code
-        QString code;
-
-        if (m_com->isChecked()) // On a demandé à inclure les commentaires
-        {
-            code += "/*\nAuteur : " + m_auteur->text() + "\n";
-            code += "Date de création : " + m_date->date().toString() + "\n\n";
-            //code += "Licence : " + m_licence->text() + "\n\n";
-            code += "Rôle :\n" + m_texte->toPlainText() + "\n*/\n\n\n";
-        }
-
-        if (m_header->isChecked())
-        {
-            code += "#ifndef HEADER_" + m_nom->text().toUpper() + "\n";
-            code += "#define HEADER_" + m_nom->text().toUpper() + "\n\n\n";
-        }
-
-        code += "class " + m_nom->text();
-
-        if (!m_classeMere->text().isEmpty())
-        {
-            code += " : public " + m_classeMere->text();
-        }
-
-        code += "\n{\n    public:\n";
-        if (m_const->isChecked())
-        {
-            code += "        " + m_nom->text() + "();\n";
-        }
-        if (m_destr->isChecked())
-        {
-            code += "        ~" + m_nom->text() + "();\n";
-        }
-        code += "\n\n    public slots:\n";
-        code += "\n\n    protected:\n";
-        code += "\n\n    private:\n";
-        code += "};\n\n";
-
-        if (m_header->isChecked())
-        {
-            code += "#endif\n";
-        }
-
-
-    MonCode *fenetreCode = new MonCode(code, this);
-    fenetreCode->exec();
+    else
+    {
+        QMessageBox::critical(this, tr("Erreur"), tr("Il faut au moins un onglet !"));
+    }
 }
 
+void MaFenetre::chargerPage()
+{
+    QString url = champAdresse->text();
+
+    // On rajoute le "http://" s'il n'est pas déjà dans l'adresse
+    if (url.left(7) != "http://")
+    {
+        url = "http://" + url;
+        champAdresse->setText(url);
+    }
+
+    pageActuelle()->load(QUrl(url));
+}
+
+void MaFenetre::changementOnglet(int index)
+{
+    changementTitre(pageActuelle()->title());
+    changementUrl(pageActuelle()->url());
+}
+
+
+void MaFenetre::changementTitre(const QString & titreComplet)
+{
+    QString titreCourt = titreComplet;
+
+    // On tronque le titre pour éviter des onglets trop larges
+    if (titreComplet.size() > 40)
+    {
+        titreCourt = titreComplet.left(40) + "...";
+    }
+
+    setWindowTitle(titreCourt + " - " + tr("zNavigo"));
+    onglets->setTabText(onglets->currentIndex(), titreCourt);
+}
+
+void MaFenetre::changementUrl(const QUrl & url)
+{
+    if (url.toString() != tr("html/page_blanche.html"))
+    {
+        champAdresse->setText(url.toString());
+    }
+}
+
+void MaFenetre::chargementDebut()
+{
+    progression->setVisible(true);
+}
+
+void MaFenetre::chargementEnCours(int pourcentage)
+{
+    progression->setValue(pourcentage);
+}
+
+void MaFenetre::chargementTermine(bool ok)
+{
+    progression->setVisible(false);
+    statusBar()->showMessage(tr("Prêt"), 2000);
+}
+
+
+
+// Autres méthodes
+
+
+QWidget *MaFenetre::creerOngletPageWeb(QString url)
+{
+    QWidget *pageOnglet = new QWidget;
+    QWebView *pageWeb = new QWebView;
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->setContentsMargins(0,0,0,0);
+    layout->addWidget(pageWeb);
+    pageOnglet->setLayout(layout);
+
+    if (url.isEmpty())
+    {
+        pageWeb->load(QUrl(tr("html/page_blanche.html")));
+    }
+    else
+    {
+        if (url.left(7) != "http://")
+        {
+            url = "http://" + url;
+        }
+        pageWeb->load(QUrl(url));
+    }
+
+    // Gestion des signaux envoyés par la page web
+    connect(pageWeb, SIGNAL(titleChanged(QString)), this, SLOT(changementTitre(QString)));
+    connect(pageWeb, SIGNAL(urlChanged(QUrl)), this, SLOT(changementUrl(QUrl)));
+    connect(pageWeb, SIGNAL(loadStarted()), this, SLOT(chargementDebut()));
+    connect(pageWeb, SIGNAL(loadProgress(int)), this, SLOT(chargementEnCours(int)));
+    connect(pageWeb, SIGNAL(loadFinished(bool)), this, SLOT(chargementTermine(bool)));
+
+    return pageOnglet;
+}
+
+QWebView *MaFenetre::pageActuelle()
+{
+    return onglets->currentWidget()->findChild<QWebView *>();
+}
 

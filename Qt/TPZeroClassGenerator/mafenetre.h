@@ -2,30 +2,60 @@
 #define MAFENETRE_H
 
 #include <QtWidgets>
+#include <QtWebKitWidgets>
 
-class MaFenetre : public QWidget // On hérite de QWidget (IMPORTANT)
+
+class MaFenetre : public QMainWindow // On hérite de QWidget (IMPORTANT)
 {
-    Q_OBJECT //macro
+    Q_OBJECT
 
     public:
-    MaFenetre();
-
-    public slots:
-    void genererCode();
-    void afficherHeader();
+        MaFenetre();
 
     private:
-    QLineEdit *m_nom;
-    QLineEdit *m_classeMere;
-    QLineEdit *m_auteur;
-    QDateEdit *m_date;
-    QTextEdit *m_texte;
-    QCheckBox *m_header;
-    QCheckBox *m_const;
-    QCheckBox *m_destr;
-    QPushButton *m_generer;
-    QPushButton *m_quitter;
-    QGroupBox *m_com;
+        void creerActions();
+        void creerMenus();
+        void creerBarresOutils();
+        void creerBarreEtat();
+        QWidget *creerOngletPageWeb(QString url = "");
+        QWebView *pageActuelle();
+
+    private slots:
+        void precedente();
+        void suivante();
+        void accueil();
+        void stop();
+        void actualiser();
+
+        void aPropos();
+        void nouvelOnglet();
+        void fermerOnglet();
+        void chargerPage();
+        void changementOnglet(int index);
+
+        void changementTitre(const QString & titreComplet);
+        void changementUrl(const QUrl & url);
+        void chargementDebut();
+        void chargementEnCours(int pourcentage);
+        void chargementTermine(bool ok);
+
+    private:
+        QTabWidget *onglets;
+
+        QAction *actionNouvelOnglet;
+        QAction *actionFermerOnglet;
+        QAction *actionQuitter;
+        QAction *actionAPropos;
+        QAction *actionAProposQt;
+        QAction *actionPrecedente;
+        QAction *actionSuivante;
+        QAction *actionStop;
+        QAction *actionActualiser;
+        QAction *actionAccueil;
+        QAction *actionGo;
+
+        QLineEdit *champAdresse;
+        QProgressBar *progression;
 
 };
 

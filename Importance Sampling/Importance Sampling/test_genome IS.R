@@ -123,6 +123,7 @@ for (i in 1:length(FST))
 {
   print(i)
   z <- FST[[i]][1:500]
+  zo <- FST[[i]][501]
   # la matrice de distances entre tous les elts de z
   DIST <- outer(z, z, function(a,b) abs(a-b) )
   K<-k2dM(DIST,direction="d2k",method = "exp",scale = 1)
@@ -144,17 +145,38 @@ for (i in 1:length(FST))
   meanZ<-mean(z)
   for(n in 1:B) {
     w[n] <- IS(k, DIST, L, 1);
-    y<-resamp(L,zsort)
-    t.perm[n] <-  (y - meanZ) %*% K %*% (y -meanZ)/varZ
+    #y<-resamp(L,zsort)
+    c<-rep(0,10) # regrouper les differentes statistiques calculees
+    cpt<-1  # compteur
+    for (j in 1:(length(zsort) - 1))
+    {
+      for (m in (j+1):length(zsort))
+      {
+        Lbis<-L[L==j | L==m]
+        Lbis[Lbis==j]<-1
+        Lbis[Lbis==m]<-2
+        c[cpt]<- t_test(c(zsort[[j]],zsort[[m]]),Lbis)
+        cpt = cpt + 1
+      }
+    }
+    t.perm[n] <-  max(c) #(y - meanZ) %*% K %*% (y -meanZ)/varZ
   }
   
   
   #On modifie les poids pour que la somme fasse 1 :
   w <- w / sum(w)
 
-  result$pavalueIS[i]<-sum( w*(t.perm  > zobs[1,1]) )
+  result$pvalueIS[i]<-sum( w*(abs(t.perm)  > zobs[1,1]) )
   
 }
+
+write.csv2(result, file="C:/Users/Marion/Documents/Stage/Importance Sampling/Importance_sampling/pvalueIS.csv",row.names=F)
+
+result[is.na(result)]<-0
+resultB<-read.csv2("C:/Users/Marion/Documents/Stage/packageBC/pvalue.csv")
+resultF<-rbind(resultB,result)
+
+write.csv2(resultF, file="C:/Users/Marion/Documents/Stage/packageBC/pvalue.csv",row.names=F)
 
 # Manhattan plot: plus la p valeur est faible, plus l'assocation entre le SNP et la maladie est grande
 # Pvaleur :  proba d'accepter H0 : "pas d association".

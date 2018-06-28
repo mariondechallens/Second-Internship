@@ -1,5 +1,6 @@
 Sys.setenv("PKG_CXXFLAGS"="-std=c++11")
 Rcpp::sourceCpp("Importance_Sampling_v1.cpp")
+Rcpp::sourceCpp("Importance_Sampling_continu.cpp")
 
 library(SKAT)
 data("SKAT.example")
@@ -102,7 +103,7 @@ k2dM<-function (Mat, direction = "k2d", method = "norm", scale = 1,
 w<-Get_Logistic_Weights(SKAT.example$Z, par1=0.07, par2=150)
 W<-diag(w)
 K<-SKAT.example$Z%*%W%*%W%*%t(SKAT.example$Z)
-DIST<-k2dM(K,direction = "k2d",method="exp",scale = 2) #theta = 1/scale
+DIST<-k2dM(K,direction = "k2d",method="exp",scale = 1) 
 nRes<-500
 
 ######simuler Y sous Ho et estimer fonction de repartition de QSKAT
@@ -177,7 +178,7 @@ varZ<-var(z)
 zsort <- list(z1 = sort(z)[1:ng], z2 = sort(z)[(ng+1):(2*ng)], z3 = sort(z)[(2*ng+1) : (3*ng)], z4 =sort(z)[(3*ng +1) : (4*ng)], z5 = sort(z) [(4*ng+1) : (5*ng)])
 
 
-zobs <- t(z - mean(z)) %*% K %*% (z -mean(z))
+zobs <- t(z - mean(z)) %*% K %*% (z -mean(z))/varZ
 L0 <- c(rep(1L,sqrt(length(DIST))/5),rep(2L,sqrt(length(DIST))/5),rep(3L,sqrt(length(DIST))/5),rep(4L,sqrt(length(DIST))/5),rep(5L,sqrt(length(DIST))/5))
 
 
@@ -207,13 +208,23 @@ plot(tobsC,log10(pvalueskatC),col="black",type='l',main = "Continu")
 
 # importance sampling (avec theta qui augmente à chaque itération)
 pIStheta<-rep(0,length(tobsC))
-#DIST <- outer(x, x, function(a,b) abs(a-b) )
-L <- integer(sqrt(length(DIST))/2)
-B <- 10000
+x<-sample(z)
+y<-sample(z)
+obs <- cor(x,y);
+
+DIST <- outer(x, x, function(a,b) abs(a-b) )
+
+# permutations "classiques"
+perm0 <- replicate(10000, { y1 <- sample(y); cor(x,y1) } )
+mean( abs(perm0) > abs(obs) )  # oups 0
+
+L <- integer(length(x))
+B <- 1e4
 w <- numeric(B)
 perm <- numeric(B)
 theta <- seq(0,2.5,length=B)
-y1 <- sort(z[sqrt(length(DIST))/2:length(z)])
+y1 <- sort(y)
+
 for(i in 1:B) {
   w[i] <- IS_c(DIST, L, theta[i])
   perm[i] <- cor(x, y1[L])
@@ -224,7 +235,7 @@ for (j in 1:length(tobsC))
   pIStheta[j]<- sum( w*(abs(perm) > abs(obs)) )/sum(w) 
 }
 
-lines(tobsC,log10(pIStheta),col="red",type="l")
+lines(tobsC,log10(pIStheta),col="blue",type="l")
 
 ### package Gaston
 pgaston<-rep(0,length(tobsC))
@@ -260,7 +271,8 @@ for (j in 1:length(tobsC))
   pnormSamp[j]<-sum( w*(t.perm  > tobsC[j]) )
 }
 lines(tobsC,log10(pnormSamp),col="brown",type='l',main = "Continu")
-legend("topright",legend=c("IS", "IS 2", "RGaston","Sampling"), fill = c("black","red","forestgreen","brown"))
+#legend("topright",legend=c("IS", "IS 2", "RGaston","Sampling"), fill = c("black","blue","forestgreen","brown"))
+legend("topright",legend=c("IS","RGaston","Sampling"), fill = c("black","forestgreen","brown"))
 
 
 

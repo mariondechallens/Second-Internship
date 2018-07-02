@@ -244,12 +244,14 @@ legend("topright",legend=c("IS","RGaston","Sampling"), fill = c("black","forestg
 
 
 
-##importence sampling continue Hervé
+##importence sampling continu Hervé
 pvalueH<-rep(0,length(tobsC))
-y<-z+0.5*sample(z)
-obs <- cor(z,y)
+x<-z[1:(length(z)/2)]
+y<-z[(length(z)/2 +1):length(z)]
+obs <- cor(x,y)
+DIST <- outer(x, x, function(a,b) abs(a-b) )
 
-L <- integer(length(z))
+L <- integer(length(x))
 B <- 1e5
 w <- numeric(B)
 perm <- numeric(B)
@@ -257,7 +259,7 @@ theta <- seq(0,2.5,length=B)
 y1 <- sort(y)
 for(i in 1:B) {
   w[i] <- IS_c(DIST, L, theta[i])
-  perm[i] <- cor(z, y1[L])
+  perm[i] <- cor(x, y1[L])
 }
 
 sum( w*(abs(perm) > abs(obs)) )/sum(w) 

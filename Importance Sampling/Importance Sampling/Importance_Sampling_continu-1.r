@@ -94,19 +94,19 @@ k2dM<-function (Mat, direction = "k2d", method = "norm", scale = 1,
 }
 
 ### tests methode Herve
-n<-seq(0.1,0.3,by=0.01)
+n<-seq(0.15,0.3,by=0.001)
 true.p<-rep(0,length(n))
 est.p<-rep(0,length(n))
 
 for (j in 1:length(n))
 {
-  print(n)
+  print(j)
   set.seed(1)
   x <- rnorm(400)
   y <- rnorm(400) + n[j]*x
   
   
-  obs <- cor(x,y);
+  obs <- cor(x,y)
   true.p[j]<-cor.test(x,y)$p.value  
   
   # permutations "classiques"
@@ -131,8 +131,8 @@ for (j in 1:length(n))
   
 
 }
-plot(log10(est.p),col="blue",main=paste0(n," iterations."))
-lines(log10(true.p),col="red")
+plot(n,log10(est.p),col="blue",type="l",main="Continu et correlations")
+lines(n,log10(true.p),col="red")
 legend("topright",
        legend=c("Estimated p", "True p"), 
        fill = c("blue", "red"))
@@ -140,20 +140,30 @@ legend("topright",
 
 ###tests methode marion
 #est.pM<-rep(0,length(n))
+resamp <- function(L,y) # y liste de listes, L liste de labels
+{
+  nLab<-length(y)
+  if (nLab > 0)
+  {
+    yR<-L
+    for (l in 1:nLab)
+    {
+      yR[yR == l] <- sample(y[[l]],length(y[[l]]))
+    }
+    return (yR)
+  }
+  return(0)
+}
+
 set.seed(1)
 x <- rnorm(400)
 y <- rnorm(400) + 0.2*x
-z <- c(x,y)
-meanZ<-mean(z)
-DIST <- outer(z, z, function(a,b) abs(a-b) )
-K<- k2dM(DIST,direction = "d2k",method = "exp", scale=1)
+obs <- cor(x,y)
+cor.test(x,y)$p.value  
 
+DIST <- outer(x, x, function(a,b) abs(a-b) )
 ng<-sqrt(length(DIST))/5
-varZ<-var(z)
-zsort <- list(z1 = sort(z)[1:ng], z2 = sort(z)[(ng+1):(2*ng)], z3 = sort(z)[(2*ng+1) : (3*ng)], z4 =sort(z)[(3*ng +1) : (4*ng)], z5 = sort(z) [(4*ng+1) : (5*ng)])
-
-
-zobs <- t(z - meanZ) %*% K %*% (z -meanZ)
+zsort <- list(z1 = sort(y)[1:ng], z2 = sort(y)[(ng+1):(2*ng)], z3 = sort(y)[(2*ng+1) : (3*ng)], z4 =sort(y)[(3*ng +1) : (4*ng)], z5 = sort(y) [(4*ng+1) : (5*ng)])
 L0 <- c(rep(1L,sqrt(length(DIST))/5),rep(2L,sqrt(length(DIST))/5),rep(3L,sqrt(length(DIST))/5),rep(4L,sqrt(length(DIST))/5),rep(5L,sqrt(length(DIST))/5))
 
 
@@ -164,15 +174,31 @@ k <- c(sqrt(length(DIST))/5, sqrt(length(DIST))/5,sqrt(length(DIST))/5,sqrt(leng
 B <- 1e4
 w <- numeric(B)
 t.perm <- numeric(B)
-for(n in 1:B) {
-  w[n] <- IS(k, DIST, L, 1);
+for(j in 1:B) {
+  w[j] <- IS(k, DIST, L, 1);
   y<-resamp(L,zsort)
-  t.perm[n] <-  (y - meanZ) %*% K %*% (y -meanZ)/varZ
+  t.perm[j] <-  cor(x,y)
 }
 
 
 #On modifie les poids pour que la somme fasse 1 :
 w <- w / sum(w)
 
-est.pM<-sum( w*(t.perm  > zobs[1,1]) )
+est.pM<-sum( w*(abs(t.perm)  > abs(obs)) )
 
+##sampling normal
+pnormSamp<-rep(0,length(tobsC))
+
+B <- 1e6
+w <- numeric(B)
+t.perm <- numeric(B)
+for(n in 1:B) {
+  w[n] <- 1
+  y<-sample(y)
+  t.perm[n] <-  cor(x,y)
+}
+
+
+#On modifie les poids pour que la somme fasse 1 :
+w <- w / sum(w)
+sum( w*(abs(t.perm)  > abs(obs)) )

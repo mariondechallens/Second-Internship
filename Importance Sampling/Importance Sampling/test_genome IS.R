@@ -133,7 +133,7 @@ for (i in 1:length(FST))
   varZ<-var(z)
   zsort <- list(z1 = sort(z)[1:ng], z2 = sort(z)[(ng+1):(2*ng)], z3 = sort(z)[(2*ng+1) : (3*ng)], z4 =sort(z)[(3*ng +1) : (4*ng)], z5 = sort(z) [(4*ng+1) : (5*ng)])
   
-  zobs <- t((z - mean(z))) %*% K %*% (z -mean(z))
+  zobs <- t((z - mean(z))) %*% K %*% (z -mean(z))/varZ
   L0 <- c(rep(1L,sqrt(length(DIST))/5),rep(2L,sqrt(length(DIST))/5),rep(3L,sqrt(length(DIST))/5),rep(4L,sqrt(length(DIST))/5),rep(5L,sqrt(length(DIST))/5))
   
   L <- L0; L[1] <- L[1] + 0L # force copie
@@ -145,38 +145,25 @@ for (i in 1:length(FST))
   meanZ<-mean(z)
   for(n in 1:B) {
     w[n] <- IS(k, DIST, L, 1);
-    #y<-resamp(L,zsort)
-    c<-rep(0,10) # regrouper les differentes statistiques calculees
-    cpt<-1  # compteur
-    for (j in 1:(length(zsort) - 1))
-    {
-      for (m in (j+1):length(zsort))
-      {
-        Lbis<-L[L==j | L==m]
-        Lbis[Lbis==j]<-1
-        Lbis[Lbis==m]<-2
-        c[cpt]<- t_test(c(zsort[[j]],zsort[[m]]),Lbis)
-        cpt = cpt + 1
-      }
-    }
-    t.perm[n] <-  max(c) #(y - meanZ) %*% K %*% (y -meanZ)/varZ
+    y<-resamp(L,zsort)
+    t.perm[n] <-(y - meanZ) %*% K %*% (y -meanZ)/varZ
   }
   
   
   #On modifie les poids pour que la somme fasse 1 :
   w <- w / sum(w)
 
-  result$pvalueIS[i]<-sum( w*(abs(t.perm)  > zobs[1,1]) )
+  result$pvalueIS[i]<-sum( w*(t.perm  > (zo/varZ)) )
   
 }
 
 write.csv2(result, file="C:/Users/Marion/Documents/Stage/Importance Sampling/Importance_sampling/pvalueIS.csv",row.names=F)
 
 result[is.na(result)]<-0
-resultB<-read.csv2("C:/Users/Marion/Documents/Stage/packageBC/pvalue.csv")
+resultB<-read.csv2("C:/Users/Marion/Documents/Stage/Importance Sampling/Importance_sampling/pvalueIS.csv")
 resultF<-rbind(resultB,result)
 
-write.csv2(resultF, file="C:/Users/Marion/Documents/Stage/packageBC/pvalue.csv",row.names=F)
+write.csv2(resultF, file="C:/Users/Marion/Documents/Stage/pImportance Sampling/Importance_sampling/pvalueIS.csv",row.names=F)
 
 # Manhattan plot: plus la p valeur est faible, plus l'assocation entre le SNP et la maladie est grande
 # Pvaleur :  proba d'accepter H0 : "pas d association".

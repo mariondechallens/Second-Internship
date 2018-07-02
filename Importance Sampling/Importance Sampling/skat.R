@@ -276,6 +276,29 @@ legend("topright",legend=c("IS","RGaston","Sampling"), fill = c("black","forestg
 
 
 
+##importence sampling continue Hervé
+pvalueH<-rep(0,length(tobsC))
+y<-z+0.2*z
+obs <- cor(z,y)
+
+L <- integer(length(z))
+B <- 1e5
+w <- numeric(B)
+perm <- numeric(B)
+theta <- seq(0,2.5,length=B)
+y1 <- sort(y)
+for(i in 1:B) {
+  w[i] <- IS_c(DIST, L, theta[i])
+  perm[i] <- cor(z, y1[L])
+}
+
+sum( w*(abs(perm) > abs(obs)) )/sum(w) 
+
+for (j in 1:length(tobsC))
+{
+  pvalueH[j]<-sum( w*(abs(perm)  > tobsC[j]) )/sum(w)
+}
+lin
 # pvalL<-SKAT:::SKAT_Optimal_Linear(res = obj2$res,Z = SKAT.example$Z,
 #                                   X1 = obj2$X1,kernel=K,weights = w,
 #                                   s2 = obj2$s2, method = "davies", 

@@ -145,6 +145,7 @@ plot(tobsB,log10(pvalueskatB),col="blue",type="l",main = "Binaire")
 
 
 #####loi normale (0,sigma2*In)
+z <- as.vector(SKAT.example$y.c)
 tobsC<- seq(3000,5500,by=0.1)
 obj2<-SKAT_Null_Model(SKAT.example$y.c ~ 1, out_type="C",n.Resampling = nRes)
 pvalueskatC<-rep(0,length(tobsC))
@@ -172,8 +173,6 @@ skat2<-SKAT(SKAT.example$Z,obj2,weights=w)$p.value
 
 #Importance sampling
 ng<-sqrt(length(DIST))/5
-
-z <- as.vector(SKAT.example$y.c)
 varZ<-var(z)
 zsort <- list(z1 = sort(z)[1:ng], z2 = sort(z)[(ng+1):(2*ng)], z3 = sort(z)[(2*ng+1) : (3*ng)], z4 =sort(z)[(3*ng +1) : (4*ng)], z5 = sort(z) [(4*ng+1) : (5*ng)])
 
@@ -246,27 +245,22 @@ legend("topright",legend=c("IS","RGaston","Sampling"), fill = c("black","forestg
 
 ##importence sampling continu Hervé
 pvalueH<-rep(0,length(tobsC))
-x<-z[1:(length(z)/2)]
-y<-z[(length(z)/2 +1):length(z)]
-obs <- cor(x,y)
-DIST <- outer(x, x, function(a,b) abs(a-b) )
 
-L <- integer(length(x))
+L <- integer(length(z))
 B <- 1e5
 w <- numeric(B)
 perm <- numeric(B)
 theta <- seq(0,2.5,length=B)
-y1 <- sort(y)
+y1 <- sort(z)
 for(i in 1:B) {
   w[i] <- IS_c(DIST, L, theta[i])
-  perm[i] <- cor(x, y1[L])
+  perm[i] <- (y1[L] - meanZ) %*% K %*% (y1[L] -meanZ)/varZ
 }
 
-sum( w*(abs(perm) > abs(obs)) )/sum(w) 
 
 for (j in 1:length(tobsC))
 {
-  pvalueH[j]<-sum( w*(abs(perm)  > tobsC[j]) )/sum(w)
+  pvalueH[j]<-sum( w*(perm  > tobsC[j]) )/sum(w)
 }
 
 # pvalL<-SKAT:::SKAT_Optimal_Linear(res = obj2$res,Z = SKAT.example$Z,

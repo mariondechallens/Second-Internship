@@ -17,7 +17,7 @@ resamp <- function(L,y) # y liste de listes, L liste de labels
   return(0)
 }
 
-n<-seq(0.15,0.3,by=0.002)
+n<-seq(0.15,0.3,by=0.005)
 true.p<-rep(0,length(n))
 est.p<-rep(0,length(n))
 pvalueM<-rep(0,length(n))
@@ -46,7 +46,7 @@ for (j in 1:length(n))
   w <- numeric(B)
   perm <- numeric(B)
   #theta <- seq(0,2.5,length=B)
-  theta <- rep(0,length(B))
+  theta <- rep(0.01,length = B)
   y1 <- sort(y)
   for(i in 1:B) {
     w[i] <- IS_c(DIST, L, theta[i])
@@ -98,7 +98,6 @@ for (j in 1:length(n))
 
 }
 
-jpeg("C:/Users/Marion/Documents/Stage/Importance Sampling/Plots/theta0ISc",res = 450, height = 12, width = 16, units = 'cm')
 #plot(n,log10(est.p),col="blue",type="l",main="Continu et correlations")
 plot(n,log10(true.p),col="red",main = "theta = 0 IS-continu",type="l")
 lines(n,log10(est.p),col="black")
@@ -110,4 +109,4 @@ lines(n,log10(pvaluenorm),col="forestgreen")
 legend("topright",
        legend=c( "True p","Estimated p H","Normal sampling"),
        fill = c("red"," black", "forestgreen"))
-dev.off()
+

@@ -46,7 +46,7 @@ for (j in 1:length(n))
   w <- numeric(B)
   perm <- numeric(B)
   #theta <- seq(0,2.5,length=B)
-  theta <- rep(0.01,length = B)
+  theta <- rep(0.05,length = B)
   y1 <- sort(y)
   for(i in 1:B) {
     w[i] <- IS_c(DIST, L, theta[i])
@@ -99,7 +99,8 @@ for (j in 1:length(n))
 }
 
 #plot(n,log10(est.p),col="blue",type="l",main="Continu et correlations")
-plot(n,log10(true.p),col="red",main = "theta = 0 IS-continu",type="l")
+jpeg(filename = "C:/Users/Marion/Documents/Stage/Importance Sampling/Plots/theta005ISc.jpg")
+plot(n,log10(true.p),col="red",main = "theta = 0.05 IS-continu",type="l")
 lines(n,log10(est.p),col="black")
 lines(n,log10(pvaluenorm),col="forestgreen")
 # legend("topright",
@@ -109,4 +110,4 @@ lines(n,log10(pvaluenorm),col="forestgreen")
 legend("topright",
        legend=c( "True p","Estimated p H","Normal sampling"),
        fill = c("red"," black", "forestgreen"))
-
+dev.off()

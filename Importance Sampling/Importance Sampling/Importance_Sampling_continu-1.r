@@ -39,26 +39,28 @@ for (j in 1:length(n))
   # 
   # mean( abs(perm0) > abs(obs) )  # oups 0
   # 
-  #### importance sampling (avec theta qui augmente √† chaque it√©ration)
+  #### importance sampling (avec theta qui augmente √ chaque it√©ration)
   
   L <- integer(length(x))
   B <- 1e5
   w <- numeric(B)
   perm <- numeric(B)
   #theta <- seq(0,2.5,length=B)
-  theta <- rep(0.05,length = B)
+  theta <- rep(0.1,length = B)
   y1 <- sort(y)
   for(i in 1:B) {
     w[i] <- IS_c(DIST, L, theta[i])
     perm[i] <- cor(x, y1[L])
   }
-  plot(log10(w))
+  plot(log10(w/sum(w)))
   est.p[j]<-sum( w*(abs(perm) > abs(obs)) )/sum(w)
 
   ##methode marion
   # ng<-sqrt(length(DIST))/5
   # zsort <- list(z1 = sort(y)[1:ng], z2 = sort(y)[(ng+1):(2*ng)], z3 = sort(y)[(2*ng+1) : (3*ng)], z4 =sort(y)[(3*ng +1) : (4*ng)], z5 = sort(y) [(4*ng+1) : (5*ng)])
+  # 
   # L0 <- c(rep(1L,sqrt(length(DIST))/5),rep(2L,sqrt(length(DIST))/5),rep(3L,sqrt(length(DIST))/5),rep(4L,sqrt(length(DIST))/5),rep(5L,sqrt(length(DIST))/5))
+  # 
   # #plot(L0)
   # 
   # L <- L0; L[1] <- L[1] + 0L # force copie
@@ -81,7 +83,7 @@ for (j in 1:length(n))
   # w <- w / sum(w)
   # plot(log10(w))
   # pvalueM[j]<-sum( w*(abs(t.perm)  > abs(obs)) )
-  
+  # 
   ##sampling normal
   B <- 1e6
   w <- numeric(B)
@@ -97,10 +99,9 @@ for (j in 1:length(n))
   
 
 }
-
+#jpeg(filename = "C:/Users/Marion/Documents/Stage/Importance Sampling/Plots/theta01ISc.jpg")
 #plot(n,log10(est.p),col="blue",type="l",main="Continu et correlations")
-jpeg(filename = "C:/Users/Marion/Documents/Stage/Importance Sampling/Plots/theta005ISc.jpg")
-plot(n,log10(true.p),col="red",main = "theta = 0.05 IS-continu",type="l")
+plot(n,log10(true.p),col="red",main = "theta = 0.1 IS HervÈ carrÈ",type="l")
 lines(n,log10(est.p),col="black")
 lines(n,log10(pvaluenorm),col="forestgreen")
 # legend("topright",
@@ -110,4 +111,4 @@ lines(n,log10(pvaluenorm),col="forestgreen")
 legend("topright",
        legend=c( "True p","Estimated p H","Normal sampling"),
        fill = c("red"," black", "forestgreen"))
-dev.off()
+#dev.off()

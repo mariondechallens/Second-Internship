@@ -10,7 +10,8 @@ void compute_p(NumericVector p, double d1, double d2, LogicalVector taken, doubl
     if(taken[i]) 
       p[i] = 0;
     else
-      S += p[i] = exp(t*(d1-d2)/(d1+d2)*((double) i/(double) n));
+      // S += p[i] = exp(t*(d1-d2)/(d1+d2)*((double) i/(double) n));
+      S += p[i] = exp(t*(-1)*pow((d1-d2)/(d1+d2),2)*((double) i/(double) n));
   }
   for(int i = 0; i < n; i++)
     p[i] /= S;
